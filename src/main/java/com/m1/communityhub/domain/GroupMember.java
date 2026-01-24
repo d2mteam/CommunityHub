@@ -11,8 +11,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "group_members")
 public class GroupMember {
@@ -41,44 +47,9 @@ public class GroupMember {
     @Column(name = "joined_at", nullable = false)
     private OffsetDateTime joinedAt;
 
-    public GroupMember() {
-    }
-
     public GroupMember(GroupEntity group, UserEntity user) {
         this.group = group;
         this.user = user;
         this.id = new GroupMemberId(group.getId(), user.getId());
-    }
-
-    public GroupMemberId getId() {
-        return id;
-    }
-
-    public GroupEntity getGroup() {
-        return group;
-    }
-
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public GroupMemberRole getRole() {
-        return role;
-    }
-
-    public void setRole(GroupMemberRole role) {
-        this.role = role;
-    }
-
-    public GroupMemberState getState() {
-        return state;
-    }
-
-    public void setState(GroupMemberState state) {
-        this.state = state;
-    }
-
-    public OffsetDateTime getJoinedAt() {
-        return joinedAt;
     }
 }

@@ -24,24 +24,24 @@ public class AuthService {
 
     @Transactional
     public UserEntity signup(AuthDtos.SignupRequest request) {
-        if (userRepository.existsByUsernameIgnoreCase(request.username())) {
+        if (userRepository.existsByUsernameIgnoreCase(request.getUsername())) {
             throw new ApiException(HttpStatus.CONFLICT, "Username already taken");
         }
-        if (userRepository.existsByEmailIgnoreCase(request.email())) {
+        if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
             throw new ApiException(HttpStatus.CONFLICT, "Email already taken");
         }
         UserEntity user = new UserEntity();
-        user.setUsername(request.username());
-        user.setEmail(request.email());
-        user.setPasswordHash(passwordEncoder.encode(request.password()));
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         return userRepository.save(user);
     }
 
     public String login(AuthDtos.LoginRequest request) {
         UserEntity user = userRepository
-            .findByUsernameIgnoreCaseOrEmailIgnoreCase(request.usernameOrEmail(), request.usernameOrEmail())
+            .findByUsernameIgnoreCaseOrEmailIgnoreCase(request.getUsernameOrEmail(), request.getUsernameOrEmail())
             .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
-        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
         return jwtService.generateToken(user.getId(), user.getUsername());

@@ -12,8 +12,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "notif_events")
 public class NotificationEvent {
@@ -46,60 +52,4 @@ public class NotificationEvent {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
-
-    public Long getId() {
-        return id;
-    }
-
-    public NotificationType getType() {
-        return type;
-    }
-
-    public void setType(NotificationType type) {
-        this.type = type;
-    }
-
-    public UserEntity getActor() {
-        return actor;
-    }
-
-    public void setActor(UserEntity actor) {
-        this.actor = actor;
-    }
-
-    public UserEntity getTargetUser() {
-        return targetUser;
-    }
-
-    public void setTargetUser(UserEntity targetUser) {
-        this.targetUser = targetUser;
-    }
-
-    public NotificationEntityType getEntityType() {
-        return entityType;
-    }
-
-    public void setEntityType(NotificationEntityType entityType) {
-        this.entityType = entityType;
-    }
-
-    public Long getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(Long entityId) {
-        this.entityId = entityId;
-    }
-
-    public String getPayload() {
-        return payload;
-    }
-
-    public void setPayload(String payload) {
-        this.payload = payload;
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
-    }
 }

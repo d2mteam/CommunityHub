@@ -46,8 +46,8 @@ public class PostService {
         Post post = new Post();
         post.setGroup(group);
         post.setAuthor(author);
-        post.setTitle(request.title());
-        post.setBody(request.body());
+        post.setTitle(request.getTitle());
+        post.setBody(request.getBody());
         return postRepository.save(post);
     }
 
@@ -74,11 +74,11 @@ public class PostService {
         if (!post.getAuthor().getId().equals(userId)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Not the post author");
         }
-        if (request.title() != null) {
-            post.setTitle(request.title());
+        if (request.getTitle() != null) {
+            post.setTitle(request.getTitle());
         }
-        if (request.body() != null) {
-            post.setBody(request.body());
+        if (request.getBody() != null) {
+            post.setBody(request.getBody());
         }
         return post;
     }

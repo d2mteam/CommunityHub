@@ -9,7 +9,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "notif_inbox")
 public class NotificationInbox {
@@ -29,32 +35,9 @@ public class NotificationInbox {
     @Column(name = "read_at")
     private OffsetDateTime readAt;
 
-    public NotificationInbox() {
-    }
-
     public NotificationInbox(UserEntity user, NotificationEvent event) {
         this.user = user;
         this.event = event;
         this.id = new NotificationInboxId(user.getId(), event.getId());
-    }
-
-    public NotificationInboxId getId() {
-        return id;
-    }
-
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public NotificationEvent getEvent() {
-        return event;
-    }
-
-    public OffsetDateTime getReadAt() {
-        return readAt;
-    }
-
-    public void setReadAt(OffsetDateTime readAt) {
-        this.readAt = readAt;
     }
 }

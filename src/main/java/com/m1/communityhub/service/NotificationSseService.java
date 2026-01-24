@@ -43,7 +43,7 @@ public class NotificationSseService {
             try {
                 emitter.send(SseEmitter.event()
                     .name("notification")
-                    .id(String.valueOf(payload.id()))
+                    .id(String.valueOf(payload.getId()))
                     .data(payload));
             } catch (IOException ex) {
                 removeEmitter(userId, emitter);

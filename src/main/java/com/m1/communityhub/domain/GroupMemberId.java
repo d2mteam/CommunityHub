@@ -3,8 +3,15 @@ package com.m1.communityhub.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
-import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 @Embeddable
 public class GroupMemberId implements Serializable {
     @Column(name = "group_id")
@@ -12,37 +19,4 @@ public class GroupMemberId implements Serializable {
 
     @Column(name = "user_id")
     private Long userId;
-
-    public GroupMemberId() {
-    }
-
-    public GroupMemberId(Long groupId, Long userId) {
-        this.groupId = groupId;
-        this.userId = userId;
-    }
-
-    public Long getGroupId() {
-        return groupId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        GroupMemberId that = (GroupMemberId) o;
-        return Objects.equals(groupId, that.groupId) && Objects.equals(userId, that.userId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(groupId, userId);
-    }
 }

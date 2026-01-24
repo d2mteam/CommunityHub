@@ -4,35 +4,54 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.OffsetDateTime;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 public final class PostDtos {
     private PostDtos() {
     }
 
-    public record PostCreateRequest(
-        @NotBlank @Size(max = 255) String title,
-        @NotBlank String body
-    ) {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PostCreateRequest {
+        @NotBlank
+        @Size(max = 255)
+        private String title;
+
+        @NotBlank
+        private String body;
     }
 
-    public record PostUpdateRequest(
-        @Size(max = 255) String title,
-        String body
-    ) {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PostUpdateRequest {
+        @Size(max = 255)
+        private String title;
+        private String body;
     }
 
-    public record PostResponse(
-        Long id,
-        Long groupId,
-        Long authorId,
-        String title,
-        String body,
-        String status,
-        OffsetDateTime createdAt,
-        OffsetDateTime updatedAt
-    ) {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PostResponse {
+        private Long id;
+        private Long groupId;
+        private Long authorId;
+        private String title;
+        private String body;
+        private String status;
+        private OffsetDateTime createdAt;
+        private OffsetDateTime updatedAt;
     }
 
-    public record PostListResponse(List<PostResponse> items, String nextCursor) {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PostListResponse {
+        private List<PostResponse> items;
+        private String nextCursor;
     }
 }

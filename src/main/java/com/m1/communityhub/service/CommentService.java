@@ -48,8 +48,8 @@ public class CommentService {
         UserEntity author = userRepository.findById(authorId)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "User not found"));
         Comment parent = null;
-        if (request.parentId() != null) {
-            parent = commentRepository.findByIdAndStatusNot(request.parentId(), CommentStatus.DELETED)
+        if (request.getParentId() != null) {
+            parent = commentRepository.findByIdAndStatusNot(request.getParentId(), CommentStatus.DELETED)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Parent comment not found"));
             if (!parent.getPost().getId().equals(postId)) {
                 throw new ApiException(HttpStatus.BAD_REQUEST, "Parent comment does not belong to post");
@@ -59,7 +59,7 @@ public class CommentService {
         comment.setPost(post);
         comment.setAuthor(author);
         comment.setParent(parent);
-        comment.setBody(request.body());
+        comment.setBody(request.getBody());
         Comment saved = commentRepository.save(comment);
 
         if (parent != null) {
@@ -93,7 +93,7 @@ public class CommentService {
         if (!comment.getAuthor().getId().equals(userId)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Not the comment author");
         }
-        comment.setBody(request.body());
+        comment.setBody(request.getBody());
         return comment;
     }
 

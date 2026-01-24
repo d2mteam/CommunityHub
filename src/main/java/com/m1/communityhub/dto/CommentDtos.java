@@ -3,34 +3,50 @@ package com.m1.communityhub.dto;
 import jakarta.validation.constraints.NotBlank;
 import java.time.OffsetDateTime;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 public final class CommentDtos {
     private CommentDtos() {
     }
 
-    public record CommentCreateRequest(
-        @NotBlank String body,
-        Long parentId
-    ) {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CommentCreateRequest {
+        @NotBlank
+        private String body;
+        private Long parentId;
     }
 
-    public record CommentUpdateRequest(
-        @NotBlank String body
-    ) {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CommentUpdateRequest {
+        @NotBlank
+        private String body;
     }
 
-    public record CommentResponse(
-        Long id,
-        Long postId,
-        Long authorId,
-        Long parentId,
-        String body,
-        String status,
-        OffsetDateTime createdAt,
-        OffsetDateTime updatedAt
-    ) {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CommentResponse {
+        private Long id;
+        private Long postId;
+        private Long authorId;
+        private Long parentId;
+        private String body;
+        private String status;
+        private OffsetDateTime createdAt;
+        private OffsetDateTime updatedAt;
     }
 
-    public record CommentListResponse(List<CommentResponse> items, String nextCursor) {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CommentListResponse {
+        private List<CommentResponse> items;
+        private String nextCursor;
     }
 }

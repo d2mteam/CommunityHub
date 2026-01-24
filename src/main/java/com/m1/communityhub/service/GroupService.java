@@ -34,14 +34,14 @@ public class GroupService {
 
     @Transactional
     public GroupEntity createGroup(Long ownerId, GroupDtos.GroupCreateRequest request) {
-        groupRepository.findBySlug(request.slug()).ifPresent(existing -> {
+        groupRepository.findBySlug(request.getSlug()).ifPresent(existing -> {
             throw new ApiException(HttpStatus.CONFLICT, "Group slug already exists");
         });
         UserEntity owner = userRepository.findById(ownerId)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "User not found"));
         GroupEntity group = new GroupEntity();
-        group.setSlug(request.slug());
-        group.setName(request.name());
+        group.setSlug(request.getSlug());
+        group.setName(request.getName());
         group.setOwner(owner);
         group = groupRepository.save(group);
 
