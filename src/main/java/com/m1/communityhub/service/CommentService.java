@@ -5,7 +5,9 @@ import com.m1.communityhub.domain.CommentStatus;
 import com.m1.communityhub.domain.PostStatus;
 import com.m1.communityhub.domain.Post;
 import com.m1.communityhub.domain.UserEntity;
-import com.m1.communityhub.dto.CommentDtos;
+import com.m1.communityhub.dto.CommentCreateRequest;
+import com.m1.communityhub.dto.CommentUpdateRequest;
+import com.m1.communityhub.mapper.CommentMapper;
 import com.m1.communityhub.repo.CommentRepository;
 import com.m1.communityhub.repo.PostRepository;
 import com.m1.communityhub.repo.UserRepository;
@@ -25,23 +27,26 @@ public class CommentService {
     private final UserRepository userRepository;
     private final GroupService groupService;
     private final NotificationService notificationService;
+    private final CommentMapper commentMapper;
 
     public CommentService(
         CommentRepository commentRepository,
         PostRepository postRepository,
         UserRepository userRepository,
         GroupService groupService,
-        NotificationService notificationService
+        NotificationService notificationService,
+        CommentMapper commentMapper
     ) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.groupService = groupService;
         this.notificationService = notificationService;
+        this.commentMapper = commentMapper;
     }
 
     @Transactional
-    public Comment createComment(Long postId, Long authorId, CommentDtos.CommentCreateRequest request) {
+    public Comment createComment(Long postId, Long authorId, CommentCreateRequest request) {
         Post post = postRepository.findByIdAndStatusNot(postId, PostStatus.DELETED)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Post not found"));
         groupService.ensureActiveMember(post.getGroup().getId(), authorId);
@@ -55,11 +60,12 @@ public class CommentService {
                 throw new ApiException(HttpStatus.BAD_REQUEST, "Parent comment does not belong to post");
             }
         }
-        Comment comment = new Comment();
+        Comment comment = commentMapper.toEntity(request);
         comment.setPost(post);
         comment.setAuthor(author);
         comment.setParent(parent);
-        comment.setBody(request.getBody());
+        comment.setStatus(CommentStatus.ACTIVE);
+        comment.setCreatedAt(OffsetDateTime.now());
         Comment saved = commentRepository.save(comment);
 
         if (parent != null) {
@@ -88,12 +94,12 @@ public class CommentService {
     }
 
     @Transactional
-    public Comment updateComment(Long commentId, Long userId, CommentDtos.CommentUpdateRequest request) {
+    public Comment updateComment(Long commentId, Long userId, CommentUpdateRequest request) {
         Comment comment = getComment(commentId);
         if (!comment.getAuthor().getId().equals(userId)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Not the comment author");
         }
-        comment.setBody(request.getBody());
+        commentMapper.update(comment, request);
         return comment;
     }
 

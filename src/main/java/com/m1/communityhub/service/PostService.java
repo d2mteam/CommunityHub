@@ -4,7 +4,9 @@ import com.m1.communityhub.domain.GroupEntity;
 import com.m1.communityhub.domain.Post;
 import com.m1.communityhub.domain.PostStatus;
 import com.m1.communityhub.domain.UserEntity;
-import com.m1.communityhub.dto.PostDtos;
+import com.m1.communityhub.dto.PostCreateRequest;
+import com.m1.communityhub.dto.PostUpdateRequest;
+import com.m1.communityhub.mapper.PostMapper;
 import com.m1.communityhub.repo.GroupRepository;
 import com.m1.communityhub.repo.PostRepository;
 import com.m1.communityhub.repo.UserRepository;
@@ -23,31 +25,34 @@ public class PostService {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final GroupService groupService;
+    private final PostMapper postMapper;
 
     public PostService(
         PostRepository postRepository,
         GroupRepository groupRepository,
         UserRepository userRepository,
-        GroupService groupService
+        GroupService groupService,
+        PostMapper postMapper
     ) {
         this.postRepository = postRepository;
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.groupService = groupService;
+        this.postMapper = postMapper;
     }
 
     @Transactional
-    public Post createPost(Long groupId, Long authorId, PostDtos.PostCreateRequest request) {
+    public Post createPost(Long groupId, Long authorId, PostCreateRequest request) {
         groupService.ensureActiveMember(groupId, authorId);
         GroupEntity group = groupRepository.findById(groupId)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Group not found"));
         UserEntity author = userRepository.findById(authorId)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "User not found"));
-        Post post = new Post();
+        Post post = postMapper.toEntity(request);
         post.setGroup(group);
         post.setAuthor(author);
-        post.setTitle(request.getTitle());
-        post.setBody(request.getBody());
+        post.setStatus(PostStatus.ACTIVE);
+        post.setCreatedAt(OffsetDateTime.now());
         return postRepository.save(post);
     }
 
@@ -69,17 +74,12 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePost(Long postId, Long userId, PostDtos.PostUpdateRequest request) {
+    public Post updatePost(Long postId, Long userId, PostUpdateRequest request) {
         Post post = getPost(postId);
         if (!post.getAuthor().getId().equals(userId)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Not the post author");
         }
-        if (request.getTitle() != null) {
-            post.setTitle(request.getTitle());
-        }
-        if (request.getBody() != null) {
-            post.setBody(request.getBody());
-        }
+        postMapper.update(post, request);
         return post;
     }
 

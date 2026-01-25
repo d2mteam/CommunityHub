@@ -5,7 +5,7 @@ import com.m1.communityhub.domain.GroupEntity;
 import com.m1.communityhub.domain.GroupMember;
 import com.m1.communityhub.domain.Post;
 import com.m1.communityhub.domain.UserEntity;
-import com.m1.communityhub.dto.CommentDtos;
+import com.m1.communityhub.dto.CommentCreateRequest;
 import com.m1.communityhub.repo.GroupMemberRepository;
 import com.m1.communityhub.repo.GroupRepository;
 import com.m1.communityhub.repo.NotificationEventRepository;
@@ -73,7 +73,7 @@ class NotificationIntegrationTests {
         groupMemberRepository.save(new GroupMember(group, commenter));
         Post post = postRepository.save(post(group, author));
 
-        commentService.createComment(post.getId(), commenter.getId(), new CommentDtos.CommentCreateRequest("hello", null));
+        commentService.createComment(post.getId(), commenter.getId(), new CommentCreateRequest("hello", null));
 
         assertThat(eventRepository.findAll()).hasSize(1);
         assertThat(inboxRepository.findAll()).hasSize(1);
@@ -88,9 +88,9 @@ class NotificationIntegrationTests {
         groupMemberRepository.save(new GroupMember(group, author));
         groupMemberRepository.save(new GroupMember(group, replier));
         Post post = postRepository.save(post(group, author));
-        Comment parent = commentService.createComment(post.getId(), author.getId(), new CommentDtos.CommentCreateRequest("parent", null));
+        Comment parent = commentService.createComment(post.getId(), author.getId(), new CommentCreateRequest("parent", null));
 
-        commentService.createComment(post.getId(), replier.getId(), new CommentDtos.CommentCreateRequest("reply", parent.getId()));
+        commentService.createComment(post.getId(), replier.getId(), new CommentCreateRequest("reply", parent.getId()));
 
         assertThat(eventRepository.findAll()).hasSize(1);
         assertThat(inboxRepository.findAll()).hasSize(1);

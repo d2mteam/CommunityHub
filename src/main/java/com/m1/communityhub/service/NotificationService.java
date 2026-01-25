@@ -1,7 +1,6 @@
 package com.m1.communityhub.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.m1.communityhub.domain.Comment;
 import com.m1.communityhub.domain.NotificationEntityType;
@@ -10,7 +9,8 @@ import com.m1.communityhub.domain.NotificationInbox;
 import com.m1.communityhub.domain.NotificationType;
 import com.m1.communityhub.domain.Post;
 import com.m1.communityhub.domain.UserEntity;
-import com.m1.communityhub.dto.NotificationDtos;
+import com.m1.communityhub.dto.NotificationDto;
+import com.m1.communityhub.mapper.NotificationMapper;
 import com.m1.communityhub.repo.NotificationEventRepository;
 import com.m1.communityhub.repo.NotificationInboxRepository;
 import com.m1.communityhub.web.ApiException;
@@ -29,17 +29,20 @@ public class NotificationService {
     private final NotificationInboxRepository inboxRepository;
     private final ObjectMapper objectMapper;
     private final NotificationSseService sseService;
+    private final NotificationMapper notificationMapper;
 
     public NotificationService(
         NotificationEventRepository eventRepository,
         NotificationInboxRepository inboxRepository,
         ObjectMapper objectMapper,
-        NotificationSseService sseService
+        NotificationSseService sseService,
+        NotificationMapper notificationMapper
     ) {
         this.eventRepository = eventRepository;
         this.inboxRepository = inboxRepository;
         this.objectMapper = objectMapper;
         this.sseService = sseService;
+        this.notificationMapper = notificationMapper;
     }
 
     @Transactional
@@ -90,26 +93,8 @@ public class NotificationService {
         return eventRepository.findByUserAfterId(userId, lastEventId, PageRequest.of(0, limit));
     }
 
-    public NotificationDtos.NotificationResponse toDto(NotificationEvent event, OffsetDateTime readAt) {
-        JsonNode payloadNode = null;
-        if (event.getPayload() != null) {
-            try {
-                payloadNode = objectMapper.readTree(event.getPayload());
-            } catch (JsonProcessingException ex) {
-                payloadNode = objectMapper.getNodeFactory().textNode(event.getPayload());
-            }
-        }
-        return new NotificationDtos.NotificationResponse(
-            event.getId(),
-            event.getType().name(),
-            event.getActor() == null ? null : event.getActor().getId(),
-            event.getTargetUser() == null ? null : event.getTargetUser().getId(),
-            event.getEntityType().name(),
-            event.getEntityId(),
-            payloadNode,
-            event.getCreatedAt(),
-            readAt
-        );
+    public NotificationDto toDto(NotificationEvent event, OffsetDateTime readAt) {
+        return notificationMapper.toDto(event, readAt);
     }
 
     private NotificationEvent buildEvent(

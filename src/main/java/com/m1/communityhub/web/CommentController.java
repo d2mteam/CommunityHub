@@ -1,7 +1,11 @@
 package com.m1.communityhub.web;
 
 import com.m1.communityhub.domain.Comment;
-import com.m1.communityhub.dto.CommentDtos;
+import com.m1.communityhub.dto.CommentCreateRequest;
+import com.m1.communityhub.dto.CommentDto;
+import com.m1.communityhub.dto.CommentListResponse;
+import com.m1.communityhub.dto.CommentUpdateRequest;
+import com.m1.communityhub.mapper.CommentMapper;
 import com.m1.communityhub.security.AuthenticatedUser;
 import com.m1.communityhub.security.SecurityUtils;
 import com.m1.communityhub.service.CommentService;
@@ -22,24 +26,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CommentController {
     private final CommentService commentService;
+    private final CommentMapper commentMapper;
 
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentService commentService, CommentMapper commentMapper) {
         this.commentService = commentService;
+        this.commentMapper = commentMapper;
     }
 
     @PostMapping("/posts/{postId}/comments")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentDtos.CommentResponse createComment(
+    public CommentDto createComment(
         @PathVariable Long postId,
-        @Valid @RequestBody CommentDtos.CommentCreateRequest request
+        @Valid @RequestBody CommentCreateRequest request
     ) {
         AuthenticatedUser user = requireUser();
         Comment comment = commentService.createComment(postId, user.getId(), request);
-        return toResponse(comment);
+        return commentMapper.toDto(comment);
     }
 
     @GetMapping("/posts/{postId}/comments")
-    public CommentDtos.CommentListResponse listComments(
+    public CommentListResponse listComments(
         @PathVariable Long postId,
         @RequestParam(required = false) String cursor,
         @RequestParam(defaultValue = "50") int limit
@@ -48,17 +54,17 @@ public class CommentController {
         String nextCursor = comments.isEmpty()
             ? null
             : CursorUtils.encode(comments.getLast().getCreatedAt(), comments.getLast().getId());
-        List<CommentDtos.CommentResponse> items = comments.stream().map(this::toResponse).toList();
-        return new CommentDtos.CommentListResponse(items, nextCursor);
+        List<CommentDto> items = comments.stream().map(commentMapper::toDto).toList();
+        return new CommentListResponse(items, nextCursor);
     }
 
     @PatchMapping("/comments/{commentId}")
-    public CommentDtos.CommentResponse updateComment(
+    public CommentDto updateComment(
         @PathVariable Long commentId,
-        @Valid @RequestBody CommentDtos.CommentUpdateRequest request
+        @Valid @RequestBody CommentUpdateRequest request
     ) {
         AuthenticatedUser user = requireUser();
-        return toResponse(commentService.updateComment(commentId, user.getId(), request));
+        return commentMapper.toDto(commentService.updateComment(commentId, user.getId(), request));
     }
 
     @DeleteMapping("/comments/{commentId}")
@@ -76,16 +82,4 @@ public class CommentController {
         return user;
     }
 
-    private CommentDtos.CommentResponse toResponse(Comment comment) {
-        return new CommentDtos.CommentResponse(
-            comment.getId(),
-            comment.getPost().getId(),
-            comment.getAuthor().getId(),
-            comment.getParent() == null ? null : comment.getParent().getId(),
-            comment.getBody(),
-            comment.getStatus().name(),
-            comment.getCreatedAt(),
-            comment.getUpdatedAt()
-        );
-    }
 }

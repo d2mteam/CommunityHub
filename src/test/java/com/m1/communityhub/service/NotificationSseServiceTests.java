@@ -1,8 +1,8 @@
 package com.m1.communityhub.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.m1.communityhub.dto.NotificationDtos;
-import java.time.OffsetDateTime;
+import com.m1.communityhub.dto.NotificationDto;
+import java.time.Instant;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -20,15 +20,15 @@ class NotificationSseServiceTests {
 
         service.registerEmitter(1L, emitter);
 
-        NotificationDtos.NotificationResponse payload = new NotificationDtos.NotificationResponse(
+        NotificationDto payload = new NotificationDto(
             10L,
             "COMMENT_CREATED",
             2L,
             1L,
             "POST",
             99L,
-            new ObjectMapper().createObjectNode().put("postId", 99),
-            OffsetDateTime.now(),
+            Map.of("postId", 99),
+            Instant.now(),
             null
         );
 

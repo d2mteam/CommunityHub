@@ -1,7 +1,11 @@
 package com.m1.communityhub.web;
 
 import com.m1.communityhub.domain.Post;
-import com.m1.communityhub.dto.PostDtos;
+import com.m1.communityhub.dto.PostCreateRequest;
+import com.m1.communityhub.dto.PostDto;
+import com.m1.communityhub.dto.PostListResponse;
+import com.m1.communityhub.dto.PostUpdateRequest;
+import com.m1.communityhub.mapper.PostMapper;
 import com.m1.communityhub.security.AuthenticatedUser;
 import com.m1.communityhub.security.SecurityUtils;
 import com.m1.communityhub.service.PostService;
@@ -24,24 +28,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping
 public class PostController {
     private final PostService postService;
+    private final PostMapper postMapper;
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, PostMapper postMapper) {
         this.postService = postService;
+        this.postMapper = postMapper;
     }
 
     @PostMapping("/groups/{groupId}/posts")
     @ResponseStatus(HttpStatus.CREATED)
-    public PostDtos.PostResponse createPost(
+    public PostDto createPost(
         @PathVariable Long groupId,
-        @Valid @RequestBody PostDtos.PostCreateRequest request
+        @Valid @RequestBody PostCreateRequest request
     ) {
         AuthenticatedUser user = requireUser();
         Post post = postService.createPost(groupId, user.getId(), request);
-        return toResponse(post);
+        return postMapper.toDto(post);
     }
 
     @GetMapping("/groups/{groupId}/posts")
-    public PostDtos.PostListResponse listPosts(
+    public PostListResponse listPosts(
         @PathVariable Long groupId,
         @RequestParam(required = false) String cursor,
         @RequestParam(defaultValue = "20") int limit
@@ -50,22 +56,22 @@ public class PostController {
         String nextCursor = posts.isEmpty()
             ? null
             : CursorUtils.encode(posts.getLast().getCreatedAt(), posts.getLast().getId());
-        List<PostDtos.PostResponse> items = posts.stream().map(this::toResponse).toList();
-        return new PostDtos.PostListResponse(items, nextCursor);
+        List<PostDto> items = posts.stream().map(postMapper::toDto).toList();
+        return new PostListResponse(items, nextCursor);
     }
 
     @GetMapping("/posts/{postId}")
-    public PostDtos.PostResponse getPost(@PathVariable Long postId) {
-        return toResponse(postService.getPost(postId));
+    public PostDto getPost(@PathVariable Long postId) {
+        return postMapper.toDto(postService.getPost(postId));
     }
 
     @PatchMapping("/posts/{postId}")
-    public PostDtos.PostResponse updatePost(
+    public PostDto updatePost(
         @PathVariable Long postId,
-        @Valid @RequestBody PostDtos.PostUpdateRequest request
+        @Valid @RequestBody PostUpdateRequest request
     ) {
         AuthenticatedUser user = requireUser();
-        return toResponse(postService.updatePost(postId, user.getId(), request));
+        return postMapper.toDto(postService.updatePost(postId, user.getId(), request));
     }
 
     @DeleteMapping("/posts/{postId}")
@@ -83,16 +89,4 @@ public class PostController {
         return user;
     }
 
-    private PostDtos.PostResponse toResponse(Post post) {
-        return new PostDtos.PostResponse(
-            post.getId(),
-            post.getGroup().getId(),
-            post.getAuthor().getId(),
-            post.getTitle(),
-            post.getBody(),
-            post.getStatus().name(),
-            post.getCreatedAt(),
-            post.getUpdatedAt()
-        );
-    }
 }

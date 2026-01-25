@@ -1,6 +1,6 @@
 package com.m1.communityhub.service;
 
-import com.m1.communityhub.dto.NotificationDtos;
+import com.m1.communityhub.dto.NotificationDto;
 import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.time.Duration;
@@ -34,7 +34,7 @@ public class NotificationSseService {
         emitter.onError(error -> removeEmitter(userId, emitter));
     }
 
-    public void sendNotification(Long userId, NotificationDtos.NotificationResponse payload) {
+    public void sendNotification(Long userId, NotificationDto payload) {
         List<SseEmitter> userEmitters = emitters.get(userId);
         if (userEmitters == null) {
             return;

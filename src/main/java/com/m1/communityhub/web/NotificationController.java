@@ -1,7 +1,8 @@
 package com.m1.communityhub.web;
 
 import com.m1.communityhub.domain.NotificationInbox;
-import com.m1.communityhub.dto.NotificationDtos;
+import com.m1.communityhub.dto.NotificationDto;
+import com.m1.communityhub.dto.NotificationListResponse;
 import com.m1.communityhub.security.AuthenticatedUser;
 import com.m1.communityhub.security.SecurityUtils;
 import com.m1.communityhub.service.NotificationService;
@@ -26,7 +27,7 @@ public class NotificationController {
     }
 
     @GetMapping
-    public NotificationDtos.NotificationListResponse listNotifications(
+    public NotificationListResponse listNotifications(
         @RequestParam(required = false) String cursor,
         @RequestParam(defaultValue = "20") int limit
     ) {
@@ -35,10 +36,10 @@ public class NotificationController {
         String nextCursor = inboxItems.isEmpty()
             ? null
             : CursorUtils.encode(inboxItems.getLast().getEvent().getCreatedAt(), inboxItems.getLast().getEvent().getId());
-        List<NotificationDtos.NotificationResponse> items = inboxItems.stream()
+        List<NotificationDto> items = inboxItems.stream()
             .map(inbox -> notificationService.toDto(inbox.getEvent(), inbox.getReadAt()))
             .toList();
-        return new NotificationDtos.NotificationListResponse(items, nextCursor);
+        return new NotificationListResponse(items, nextCursor);
     }
 
     @PostMapping("/{eventId}/read")
