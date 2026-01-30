@@ -5,17 +5,15 @@ import com.m1.communityhub.dto.AuthDtos;
 import com.m1.communityhub.repo.UserRepository;
 import com.m1.communityhub.security.AuthenticatedUser;
 import com.m1.communityhub.security.SecurityUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 public class MeController {
     private final UserRepository userRepository;
-
-    public MeController(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @GetMapping("/me")
     public AuthDtos.MeResponse me() {
@@ -23,7 +21,7 @@ public class MeController {
         if (current == null) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
-        UserEntity user = userRepository.findById(current.getId())
+        UserEntity user = userRepository.findById(current.id())
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "User not found"));
         return new AuthDtos.MeResponse(user.getId(), user.getUsername(), user.getEmail());
     }

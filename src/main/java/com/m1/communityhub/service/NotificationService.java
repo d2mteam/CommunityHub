@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.m1.communityhub.domain.Comment;
-import com.m1.communityhub.domain.NotificationEntityType;
+import com.m1.communityhub.domain.enums.NotificationEntityType;
 import com.m1.communityhub.domain.NotificationEvent;
 import com.m1.communityhub.domain.NotificationInbox;
-import com.m1.communityhub.domain.NotificationType;
+import com.m1.communityhub.domain.enums.NotificationType;
 import com.m1.communityhub.domain.Post;
 import com.m1.communityhub.domain.UserEntity;
 import com.m1.communityhub.dto.NotificationDtos;
@@ -18,29 +18,20 @@ import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationService {
     private final NotificationEventRepository eventRepository;
     private final NotificationInboxRepository inboxRepository;
     private final ObjectMapper objectMapper;
     private final NotificationSseService sseService;
-
-    public NotificationService(
-        NotificationEventRepository eventRepository,
-        NotificationInboxRepository inboxRepository,
-        ObjectMapper objectMapper,
-        NotificationSseService sseService
-    ) {
-        this.eventRepository = eventRepository;
-        this.inboxRepository = inboxRepository;
-        this.objectMapper = objectMapper;
-        this.sseService = sseService;
-    }
 
     @Transactional
     public void notifyCommentCreated(Comment comment, Post post, UserEntity actor) {

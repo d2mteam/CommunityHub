@@ -7,6 +7,8 @@ import com.m1.communityhub.security.SecurityUtils;
 import com.m1.communityhub.service.GroupService;
 import jakarta.validation.Valid;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,18 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/groups")
+@RequiredArgsConstructor
 public class GroupController {
     private final GroupService groupService;
-
-    public GroupController(GroupService groupService) {
-        this.groupService = groupService;
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GroupDtos.GroupResponse createGroup(@Valid @RequestBody GroupDtos.GroupCreateRequest request) {
         AuthenticatedUser user = requireUser();
-        GroupEntity group = groupService.createGroup(user.getId(), request);
+        GroupEntity group = groupService.createGroup(user.id(), request);
         return toResponse(group);
     }
 
@@ -47,14 +45,14 @@ public class GroupController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void joinGroup(@PathVariable Long groupId) {
         AuthenticatedUser user = requireUser();
-        groupService.joinGroup(groupId, user.getId());
+        groupService.joinGroup(groupId, user.id());
     }
 
     @PostMapping("/{groupId}/leave")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void leaveGroup(@PathVariable Long groupId) {
         AuthenticatedUser user = requireUser();
-        groupService.leaveGroup(groupId, user.getId());
+        groupService.leaveGroup(groupId, user.id());
     }
 
     private AuthenticatedUser requireUser() {

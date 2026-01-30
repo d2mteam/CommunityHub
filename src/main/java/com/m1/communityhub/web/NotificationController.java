@@ -31,7 +31,7 @@ public class NotificationController {
         @RequestParam(defaultValue = "20") int limit
     ) {
         AuthenticatedUser user = requireUser();
-        List<NotificationInbox> inboxItems = notificationService.listInbox(user.getId(), cursor, limit);
+        List<NotificationInbox> inboxItems = notificationService.listInbox(user.id(), cursor, limit);
         String nextCursor = inboxItems.isEmpty()
             ? null
             : CursorUtils.encode(inboxItems.getLast().getEvent().getCreatedAt(), inboxItems.getLast().getEvent().getId());
@@ -45,14 +45,14 @@ public class NotificationController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void markRead(@PathVariable Long eventId) {
         AuthenticatedUser user = requireUser();
-        notificationService.markRead(user.getId(), eventId);
+        notificationService.markRead(user.id(), eventId);
     }
 
     @PostMapping("/read-all")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void markAllRead() {
         AuthenticatedUser user = requireUser();
-        notificationService.markAllRead(user.getId());
+        notificationService.markAllRead(user.id());
     }
 
     private AuthenticatedUser requireUser() {

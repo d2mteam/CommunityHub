@@ -8,6 +8,8 @@ import com.m1.communityhub.service.PostService;
 import com.m1.communityhub.util.CursorUtils;
 import jakarta.validation.Valid;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,12 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping
+@RequiredArgsConstructor
 public class PostController {
     private final PostService postService;
 
-    public PostController(PostService postService) {
-        this.postService = postService;
-    }
 
     @PostMapping("/groups/{groupId}/posts")
     @ResponseStatus(HttpStatus.CREATED)
@@ -36,7 +36,7 @@ public class PostController {
         @Valid @RequestBody PostDtos.PostCreateRequest request
     ) {
         AuthenticatedUser user = requireUser();
-        Post post = postService.createPost(groupId, user.getId(), request);
+        Post post = postService.createPost(groupId, user.id(), request);
         return toResponse(post);
     }
 
@@ -65,14 +65,14 @@ public class PostController {
         @Valid @RequestBody PostDtos.PostUpdateRequest request
     ) {
         AuthenticatedUser user = requireUser();
-        return toResponse(postService.updatePost(postId, user.getId(), request));
+        return toResponse(postService.updatePost(postId, user.id(), request));
     }
 
     @DeleteMapping("/posts/{postId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePost(@PathVariable Long postId) {
         AuthenticatedUser user = requireUser();
-        postService.softDelete(postId, user.getId());
+        postService.softDelete(postId, user.id());
     }
 
     private AuthenticatedUser requireUser() {

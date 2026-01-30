@@ -8,6 +8,8 @@ import com.m1.communityhub.service.CommentService;
 import com.m1.communityhub.util.CursorUtils;
 import jakarta.validation.Valid;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,12 +22,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
-
-    public CommentController(CommentService commentService) {
-        this.commentService = commentService;
-    }
 
     @PostMapping("/posts/{postId}/comments")
     @ResponseStatus(HttpStatus.CREATED)
@@ -34,7 +33,7 @@ public class CommentController {
         @Valid @RequestBody CommentDtos.CommentCreateRequest request
     ) {
         AuthenticatedUser user = requireUser();
-        Comment comment = commentService.createComment(postId, user.getId(), request);
+        Comment comment = commentService.createComment(postId, user.id(), request);
         return toResponse(comment);
     }
 
@@ -58,14 +57,14 @@ public class CommentController {
         @Valid @RequestBody CommentDtos.CommentUpdateRequest request
     ) {
         AuthenticatedUser user = requireUser();
-        return toResponse(commentService.updateComment(commentId, user.getId(), request));
+        return toResponse(commentService.updateComment(commentId, user.id(), request));
     }
 
     @DeleteMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable Long commentId) {
         AuthenticatedUser user = requireUser();
-        commentService.softDelete(commentId, user.getId());
+        commentService.softDelete(commentId, user.id());
     }
 
     private AuthenticatedUser requireUser() {

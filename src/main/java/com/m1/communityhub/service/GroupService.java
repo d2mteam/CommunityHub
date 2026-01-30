@@ -3,8 +3,8 @@ package com.m1.communityhub.service;
 import com.m1.communityhub.domain.GroupEntity;
 import com.m1.communityhub.domain.GroupMember;
 import com.m1.communityhub.domain.GroupMemberId;
-import com.m1.communityhub.domain.GroupMemberRole;
-import com.m1.communityhub.domain.GroupMemberState;
+import com.m1.communityhub.domain.enums.GroupMemberRole;
+import com.m1.communityhub.domain.enums.GroupMemberState;
 import com.m1.communityhub.domain.UserEntity;
 import com.m1.communityhub.dto.GroupDtos;
 import com.m1.communityhub.repo.GroupMemberRepository;
@@ -12,25 +12,18 @@ import com.m1.communityhub.repo.GroupRepository;
 import com.m1.communityhub.repo.UserRepository;
 import com.m1.communityhub.web.ApiException;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class GroupService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
-
-    public GroupService(
-        GroupRepository groupRepository,
-        GroupMemberRepository groupMemberRepository,
-        UserRepository userRepository
-    ) {
-        this.groupRepository = groupRepository;
-        this.groupMemberRepository = groupMemberRepository;
-        this.userRepository = userRepository;
-    }
 
     @Transactional
     public GroupEntity createGroup(Long ownerId, GroupDtos.GroupCreateRequest request) {

@@ -2,7 +2,7 @@ package com.m1.communityhub.service;
 
 import com.m1.communityhub.domain.GroupEntity;
 import com.m1.communityhub.domain.Post;
-import com.m1.communityhub.domain.PostStatus;
+import com.m1.communityhub.domain.enums.PostStatus;
 import com.m1.communityhub.domain.UserEntity;
 import com.m1.communityhub.dto.PostDtos;
 import com.m1.communityhub.repo.GroupRepository;
@@ -12,29 +12,20 @@ import com.m1.communityhub.util.CursorUtils;
 import com.m1.communityhub.web.ApiException;
 import java.time.OffsetDateTime;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final GroupService groupService;
-
-    public PostService(
-        PostRepository postRepository,
-        GroupRepository groupRepository,
-        UserRepository userRepository,
-        GroupService groupService
-    ) {
-        this.postRepository = postRepository;
-        this.groupRepository = groupRepository;
-        this.userRepository = userRepository;
-        this.groupService = groupService;
-    }
 
     @Transactional
     public Post createPost(Long groupId, Long authorId, PostDtos.PostCreateRequest request) {

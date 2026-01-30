@@ -28,12 +28,12 @@ public class SseController {
         if (user == null) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
-        SseEmitter emitter = sseService.register(user.getId());
+        SseEmitter emitter = sseService.register(user.id());
         if (lastEventId != null && !lastEventId.isBlank()) {
             try {
                 Long lastId = Long.parseLong(lastEventId.trim());
-                List<NotificationEvent> missed = notificationService.listEventsAfter(user.getId(), lastId, 50);
-                missed.forEach(event -> sseService.sendNotification(user.getId(), notificationService.toDto(event, null)));
+                List<NotificationEvent> missed = notificationService.listEventsAfter(user.id(), lastId, 50);
+                missed.forEach(event -> sseService.sendNotification(user.id(), notificationService.toDto(event, null)));
             } catch (NumberFormatException ex) {
                 // ignore invalid last id
             }

@@ -2,7 +2,7 @@ package com.m1.communityhub.repo;
 
 import com.m1.communityhub.domain.GroupMember;
 import com.m1.communityhub.domain.GroupMemberId;
-import com.m1.communityhub.domain.GroupMemberState;
+import com.m1.communityhub.domain.enums.GroupMemberState;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

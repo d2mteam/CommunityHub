@@ -1,5 +1,6 @@
 package com.m1.communityhub.domain;
 
+import com.m1.communityhub.domain.enums.PostStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

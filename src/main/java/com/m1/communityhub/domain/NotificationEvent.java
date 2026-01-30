@@ -1,5 +1,7 @@
 package com.m1.communityhub.domain;
 
+import com.m1.communityhub.domain.enums.NotificationEntityType;
+import com.m1.communityhub.domain.enums.NotificationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

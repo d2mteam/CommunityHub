@@ -1,7 +1,7 @@
 package com.m1.communityhub.repo;
 
 import com.m1.communityhub.domain.Comment;
-import com.m1.communityhub.domain.CommentStatus;
+import com.m1.communityhub.domain.enums.CommentStatus;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;

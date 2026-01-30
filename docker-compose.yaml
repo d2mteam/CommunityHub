@@ -1,0 +1,13 @@
+services:
+  postgresql:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: communityhub
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: s3crect
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_sql:/var/lib/postgresql/data
+volumes:
+  postgres_sql:

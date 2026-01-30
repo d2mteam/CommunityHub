@@ -1,5 +1,7 @@
 package com.m1.communityhub.domain;
 
+import com.m1.communityhub.domain.enums.GroupMemberRole;
+import com.m1.communityhub.domain.enums.GroupMemberState;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;

@@ -1,8 +1,8 @@
 package com.m1.communityhub.service;
 
 import com.m1.communityhub.domain.Comment;
-import com.m1.communityhub.domain.CommentStatus;
-import com.m1.communityhub.domain.PostStatus;
+import com.m1.communityhub.domain.enums.CommentStatus;
+import com.m1.communityhub.domain.enums.PostStatus;
 import com.m1.communityhub.domain.Post;
 import com.m1.communityhub.domain.UserEntity;
 import com.m1.communityhub.dto.CommentDtos;
@@ -13,32 +13,21 @@ import com.m1.communityhub.util.CursorUtils;
 import com.m1.communityhub.web.ApiException;
 import java.time.OffsetDateTime;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final GroupService groupService;
     private final NotificationService notificationService;
-
-    public CommentService(
-        CommentRepository commentRepository,
-        PostRepository postRepository,
-        UserRepository userRepository,
-        GroupService groupService,
-        NotificationService notificationService
-    ) {
-        this.commentRepository = commentRepository;
-        this.postRepository = postRepository;
-        this.userRepository = userRepository;
-        this.groupService = groupService;
-        this.notificationService = notificationService;
-    }
 
     @Transactional
     public Comment createComment(Long postId, Long authorId, CommentDtos.CommentCreateRequest request) {

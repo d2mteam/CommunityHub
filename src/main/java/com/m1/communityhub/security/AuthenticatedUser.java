@@ -5,18 +5,7 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class AuthenticatedUser implements UserDetails {
-    private final Long id;
-    private final String username;
-
-    public AuthenticatedUser(Long id, String username) {
-        this.id = id;
-        this.username = username;
-    }
-
-    public Long getId() {
-        return id;
-    }
+public record AuthenticatedUser(Long id, String username) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -33,23 +22,4 @@ public class AuthenticatedUser implements UserDetails {
         return username;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }
