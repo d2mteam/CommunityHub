@@ -9,11 +9,16 @@ Minimal text-only forum/group app built with Spring Boot 3 (Java 21), PostgreSQL
 
 ## Configuration
 
-Update `src/main/resources/application.properties` as needed. Default settings:
+Update `src/main/resources/application.yaml` as needed. Default settings:
 
 - Database: `jdbc:postgresql://localhost:5432/communityhub`
-- Username/password: `communityhub` / `communityhub`
-- JWT secret: `app.jwt.secret`
+- Username/password: `admin` / `s3crect`
+- Keycloak issuer: `spring.security.oauth2.resourceserver.jwt.issuer-uri`
+- Keycloak audience: `app.security.jwt.audience`
+
+The API trusts Keycloak-issued JWTs and validates issuer, audience, signature, and expiry.
+User identity comes directly from JWT claims (`sub`, `preferred_username`, `email`, roles, scopes).
+The `sub` claim must align with the local `users.id` used for content ownership. See `SECURITY.md` for details.
 
 ## Run
 
@@ -26,15 +31,8 @@ Flyway migrations run automatically on startup.
 ## Sample usage
 
 ```bash
-# Signup
-curl -X POST http://localhost:8080/auth/signup \
-  -H "Content-Type: application/json" \
-  -d '{"username":"alice","email":"alice@example.com","password":"password123"}'
-
-# Login
-TOKEN=$(curl -s -X POST http://localhost:8080/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"usernameOrEmail":"alice","password":"password123"}' | jq -r .accessToken)
+# Obtain a Keycloak access token (sub must map to users.id)
+TOKEN="eyJhbGciOi..."
 
 # Create group
 curl -X POST http://localhost:8080/groups \
