@@ -2,8 +2,8 @@ package com.m1.communityhub.web;
 
 import com.m1.communityhub.domain.Post;
 import com.m1.communityhub.dto.PostDtos;
-import com.m1.communityhub.security.AuthenticatedUser;
 import com.m1.communityhub.security.SecurityUtils;
+import com.m1.communityhub.security.UserContext;
 import com.m1.communityhub.service.PostService;
 import com.m1.communityhub.util.CursorUtils;
 import jakarta.validation.Valid;
@@ -35,8 +35,8 @@ public class PostController {
         @PathVariable Long groupId,
         @Valid @RequestBody PostDtos.PostCreateRequest request
     ) {
-        AuthenticatedUser user = requireUser();
-        Post post = postService.createPost(groupId, user.id(), request);
+        UserContext user = requireUser();
+        Post post = postService.createPost(groupId, user, request);
         return toResponse(post);
     }
 
@@ -64,19 +64,19 @@ public class PostController {
         @PathVariable Long postId,
         @Valid @RequestBody PostDtos.PostUpdateRequest request
     ) {
-        AuthenticatedUser user = requireUser();
-        return toResponse(postService.updatePost(postId, user.id(), request));
+        UserContext user = requireUser();
+        return toResponse(postService.updatePost(postId, user, request));
     }
 
     @DeleteMapping("/posts/{postId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePost(@PathVariable Long postId) {
-        AuthenticatedUser user = requireUser();
-        postService.softDelete(postId, user.id());
+        UserContext user = requireUser();
+        postService.softDelete(postId, user);
     }
 
-    private AuthenticatedUser requireUser() {
-        AuthenticatedUser user = SecurityUtils.currentUser();
+    private UserContext requireUser() {
+        UserContext user = SecurityUtils.currentUser();
         if (user == null) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
