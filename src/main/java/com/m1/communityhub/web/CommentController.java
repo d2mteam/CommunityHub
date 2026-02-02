@@ -2,8 +2,8 @@ package com.m1.communityhub.web;
 
 import com.m1.communityhub.domain.Comment;
 import com.m1.communityhub.dto.CommentDtos;
-import com.m1.communityhub.security.AuthenticatedUser;
 import com.m1.communityhub.security.SecurityUtils;
+import com.m1.communityhub.security.UserContext;
 import com.m1.communityhub.service.CommentService;
 import com.m1.communityhub.util.CursorUtils;
 import jakarta.validation.Valid;
@@ -32,8 +32,8 @@ public class CommentController {
         @PathVariable Long postId,
         @Valid @RequestBody CommentDtos.CommentCreateRequest request
     ) {
-        AuthenticatedUser user = requireUser();
-        Comment comment = commentService.createComment(postId, user.id(), request);
+        UserContext user = requireUser();
+        Comment comment = commentService.createComment(postId, user, request);
         return toResponse(comment);
     }
 
@@ -56,19 +56,19 @@ public class CommentController {
         @PathVariable Long commentId,
         @Valid @RequestBody CommentDtos.CommentUpdateRequest request
     ) {
-        AuthenticatedUser user = requireUser();
-        return toResponse(commentService.updateComment(commentId, user.id(), request));
+        UserContext user = requireUser();
+        return toResponse(commentService.updateComment(commentId, user, request));
     }
 
     @DeleteMapping("/comments/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable Long commentId) {
-        AuthenticatedUser user = requireUser();
-        commentService.softDelete(commentId, user.id());
+        UserContext user = requireUser();
+        commentService.softDelete(commentId, user);
     }
 
-    private AuthenticatedUser requireUser() {
-        AuthenticatedUser user = SecurityUtils.currentUser();
+    private UserContext requireUser() {
+        UserContext user = SecurityUtils.currentUser();
         if (user == null) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
@@ -79,7 +79,7 @@ public class CommentController {
         return new CommentDtos.CommentResponse(
             comment.getId(),
             comment.getPost().getId(),
-            comment.getAuthor().getId(),
+            comment.getAuthor().getId().toString(),
             comment.getParent() == null ? null : comment.getParent().getId(),
             comment.getBody(),
             comment.getStatus().name(),

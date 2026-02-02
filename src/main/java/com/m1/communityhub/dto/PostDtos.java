@@ -39,7 +39,7 @@ public final class PostDtos {
     public static class PostResponse {
         private Long id;
         private Long groupId;
-        private Long authorId;
+        private String authorId;
         private String title;
         private String body;
         private String status;

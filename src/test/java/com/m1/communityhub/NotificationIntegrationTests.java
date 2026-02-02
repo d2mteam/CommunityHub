@@ -12,7 +12,10 @@ import com.m1.communityhub.repo.NotificationEventRepository;
 import com.m1.communityhub.repo.NotificationInboxRepository;
 import com.m1.communityhub.repo.PostRepository;
 import com.m1.communityhub.repo.UserRepository;
+import com.m1.communityhub.security.UserContext;
 import com.m1.communityhub.service.CommentService;
+import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,7 +43,7 @@ class NotificationIntegrationTests {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("app.jwt.secret", () -> "test-secret-test-secret-test-secret");
+        registry.add("spring.security.oauth2.resourceserver.jwt.jwk-set-uri", () -> "http://localhost:9999/does-not-exist");
     }
 
     @Autowired
@@ -73,7 +76,11 @@ class NotificationIntegrationTests {
         groupMemberRepository.save(new GroupMember(group, commenter));
         Post post = postRepository.save(post(group, author));
 
-        commentService.createComment(post.getId(), commenter.getId(), new CommentDtos.CommentCreateRequest("hello", null));
+        commentService.createComment(
+            post.getId(),
+            userContext(commenter.getId(), commenter.getUsername()),
+            new CommentDtos.CommentCreateRequest("hello", null)
+        );
 
         assertThat(eventRepository.findAll()).hasSize(1);
         assertThat(inboxRepository.findAll()).hasSize(1);
@@ -88,9 +95,17 @@ class NotificationIntegrationTests {
         groupMemberRepository.save(new GroupMember(group, author));
         groupMemberRepository.save(new GroupMember(group, replier));
         Post post = postRepository.save(post(group, author));
-        Comment parent = commentService.createComment(post.getId(), author.getId(), new CommentDtos.CommentCreateRequest("parent", null));
+        Comment parent = commentService.createComment(
+            post.getId(),
+            userContext(author.getId(), author.getUsername()),
+            new CommentDtos.CommentCreateRequest("parent", null)
+        );
 
-        commentService.createComment(post.getId(), replier.getId(), new CommentDtos.CommentCreateRequest("reply", parent.getId()));
+        commentService.createComment(
+            post.getId(),
+            userContext(replier.getId(), replier.getUsername()),
+            new CommentDtos.CommentCreateRequest("reply", parent.getId())
+        );
 
         assertThat(eventRepository.findAll()).hasSize(1);
         assertThat(inboxRepository.findAll()).hasSize(1);
@@ -101,7 +116,6 @@ class NotificationIntegrationTests {
         UserEntity user = new UserEntity();
         user.setUsername(username);
         user.setEmail(email);
-        user.setPasswordHash("hashed");
         return user;
     }
 
@@ -111,6 +125,10 @@ class NotificationIntegrationTests {
         group.setName(name);
         group.setOwner(owner);
         return group;
+    }
+
+    private UserContext userContext(UUID id, String username) {
+        return new UserContext(id.toString(), username, username + "@example.com", Set.of(), Set.of());
     }
 
     private Post post(GroupEntity group, UserEntity author) {

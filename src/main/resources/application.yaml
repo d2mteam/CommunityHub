@@ -6,15 +6,24 @@ spring:
         jdbc:
           time_zone: UTC
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
   datasource:
     username: admin
     url: jdbc:postgresql://localhost:5432/communityhub
     password: s3crect
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  flyway:
+    enabled: false
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: 'false'
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/communityhub
 app:
-  jwt:
-    secret: change-me-please-change-me-please-change-me
-    expiration-seconds: '86400'
+  security:
+    jwt:
+      audience: communityhub-api

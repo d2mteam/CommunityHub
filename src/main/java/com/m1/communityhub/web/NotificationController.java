@@ -2,11 +2,12 @@ package com.m1.communityhub.web;
 
 import com.m1.communityhub.domain.NotificationInbox;
 import com.m1.communityhub.dto.NotificationDtos;
-import com.m1.communityhub.security.AuthenticatedUser;
 import com.m1.communityhub.security.SecurityUtils;
+import com.m1.communityhub.security.UserContext;
 import com.m1.communityhub.service.NotificationService;
 import com.m1.communityhub.util.CursorUtils;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,8 +31,9 @@ public class NotificationController {
         @RequestParam(required = false) String cursor,
         @RequestParam(defaultValue = "20") int limit
     ) {
-        AuthenticatedUser user = requireUser();
-        List<NotificationInbox> inboxItems = notificationService.listInbox(user.id(), cursor, limit);
+        UserContext user = requireUser();
+        UUID userId = requireUserId(user);
+        List<NotificationInbox> inboxItems = notificationService.listInbox(userId, cursor, limit);
         String nextCursor = inboxItems.isEmpty()
             ? null
             : CursorUtils.encode(inboxItems.getLast().getEvent().getCreatedAt(), inboxItems.getLast().getEvent().getId());
@@ -44,22 +46,32 @@ public class NotificationController {
     @PostMapping("/{eventId}/read")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void markRead(@PathVariable Long eventId) {
-        AuthenticatedUser user = requireUser();
-        notificationService.markRead(user.id(), eventId);
+        UserContext user = requireUser();
+        UUID userId = requireUserId(user);
+        notificationService.markRead(userId, eventId);
     }
 
     @PostMapping("/read-all")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void markAllRead() {
-        AuthenticatedUser user = requireUser();
-        notificationService.markAllRead(user.id());
+        UserContext user = requireUser();
+        UUID userId = requireUserId(user);
+        notificationService.markAllRead(userId);
     }
 
-    private AuthenticatedUser requireUser() {
-        AuthenticatedUser user = SecurityUtils.currentUser();
+    private UserContext requireUser() {
+        UserContext user = SecurityUtils.currentUser();
         if (user == null) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
         return user;
+    }
+
+    private UUID requireUserId(UserContext user) {
+        try {
+            return UUID.fromString(user.userId());
+        } catch (IllegalArgumentException ex) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid user id");
+        }
     }
 }

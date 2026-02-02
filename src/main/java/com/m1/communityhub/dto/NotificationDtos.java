@@ -17,8 +17,8 @@ public final class NotificationDtos {
     public static class NotificationResponse {
         private Long id;
         private String type;
-        private Long actorId;
-        private Long targetUserId;
+        private String actorId;
+        private String targetUserId;
         private String entityType;
         private Long entityId;
         private JsonNode payload;

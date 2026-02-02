@@ -2,8 +2,8 @@ package com.m1.communityhub.web;
 
 import com.m1.communityhub.domain.GroupEntity;
 import com.m1.communityhub.dto.GroupDtos;
-import com.m1.communityhub.security.AuthenticatedUser;
 import com.m1.communityhub.security.SecurityUtils;
+import com.m1.communityhub.security.UserContext;
 import com.m1.communityhub.service.GroupService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -26,8 +26,8 @@ public class GroupController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GroupDtos.GroupResponse createGroup(@Valid @RequestBody GroupDtos.GroupCreateRequest request) {
-        AuthenticatedUser user = requireUser();
-        GroupEntity group = groupService.createGroup(user.id(), request);
+        UserContext user = requireUser();
+        GroupEntity group = groupService.createGroup(user, request);
         return toResponse(group);
     }
 
@@ -44,19 +44,19 @@ public class GroupController {
     @PostMapping("/{groupId}/join")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void joinGroup(@PathVariable Long groupId) {
-        AuthenticatedUser user = requireUser();
-        groupService.joinGroup(groupId, user.id());
+        UserContext user = requireUser();
+        groupService.joinGroup(groupId, user);
     }
 
     @PostMapping("/{groupId}/leave")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void leaveGroup(@PathVariable Long groupId) {
-        AuthenticatedUser user = requireUser();
-        groupService.leaveGroup(groupId, user.id());
+        UserContext user = requireUser();
+        groupService.leaveGroup(groupId, user);
     }
 
-    private AuthenticatedUser requireUser() {
-        AuthenticatedUser user = SecurityUtils.currentUser();
+    private UserContext requireUser() {
+        UserContext user = SecurityUtils.currentUser();
         if (user == null) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
@@ -68,7 +68,7 @@ public class GroupController {
             group.getId(),
             group.getSlug(),
             group.getName(),
-            group.getOwner() == null ? null : group.getOwner().getId(),
+            group.getOwner() == null ? null : group.getOwner().getId().toString(),
             group.getCreatedAt()
         );
     }

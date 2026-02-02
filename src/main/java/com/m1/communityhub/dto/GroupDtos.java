@@ -31,7 +31,7 @@ public final class GroupDtos {
         private Long id;
         private String slug;
         private String name;
-        private Long ownerId;
+        private String ownerId;
         private OffsetDateTime createdAt;
     }
 }
