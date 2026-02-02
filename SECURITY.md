@@ -27,7 +27,7 @@ If the JWT is missing, invalid, or expired, the request is rejected with `401 Un
 
 CommunityHub derives a **read-only** user context from JWT claims (no database lookup for identity):
 
-- `sub` → `userId`
+- `sub` → `userId` (UUID)
 - `preferred_username` → `username`
 - `email` → `email`
 - `realm_access.roles` → `roles`
@@ -35,7 +35,7 @@ CommunityHub derives a **read-only** user context from JWT claims (no database l
 
 The resulting context is used for authorization decisions and for attributing actions in
 business logic. When persisting content, CommunityHub expects `sub` to map to the local
-`users.id` value (numeric) used for content ownership.
+`users.id` value (UUID) used for content ownership.
 
 ## Authorization
 

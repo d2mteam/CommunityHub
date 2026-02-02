@@ -3,6 +3,7 @@ package com.m1.communityhub.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,5 +19,5 @@ public class GroupMemberId implements Serializable {
     private Long groupId;
 
     @Column(name = "user_id")
-    private Long userId;
+    private UUID userId;
 }

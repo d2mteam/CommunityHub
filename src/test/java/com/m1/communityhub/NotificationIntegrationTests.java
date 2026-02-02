@@ -15,6 +15,7 @@ import com.m1.communityhub.repo.UserRepository;
 import com.m1.communityhub.security.UserContext;
 import com.m1.communityhub.service.CommentService;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -126,8 +127,8 @@ class NotificationIntegrationTests {
         return group;
     }
 
-    private UserContext userContext(Long id, String username) {
-        return new UserContext(String.valueOf(id), username, username + "@example.com", Set.of(), Set.of());
+    private UserContext userContext(UUID id, String username) {
+        return new UserContext(id.toString(), username, username + "@example.com", Set.of(), Set.of());
     }
 
     private Post post(GroupEntity group, UserEntity author) {

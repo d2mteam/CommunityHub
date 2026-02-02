@@ -18,7 +18,7 @@ Update `src/main/resources/application.yaml` as needed. Default settings:
 
 The API trusts Keycloak-issued JWTs and validates issuer, audience, signature, and expiry.
 User identity comes directly from JWT claims (`sub`, `preferred_username`, `email`, roles, scopes).
-The `sub` claim must align with the local `users.id` used for content ownership. See `SECURITY.md` for details.
+The `sub` claim must align with the local `users.id` (UUID) used for content ownership. See `SECURITY.md` for details.
 
 ## Run
 
@@ -27,6 +27,35 @@ The `sub` claim must align with the local `users.id` used for content ownership.
 ```
 
 Flyway migrations run automatically on startup.
+
+## Docker Compose (app + Postgres + Keycloak)
+
+```bash
+docker-compose up --build
+```
+
+This starts:
+
+- CommunityHub API on `http://localhost:8080`
+- Keycloak on `http://localhost:8081` (realm: `communityhub`)
+- Postgres on `localhost:5432`
+
+Keycloak demo user for local testing:
+
+- Username: `demo`
+- Password: `demo1234`
+
+The Keycloak realm includes a `communityhub-api` client with audience mapping enabled so the
+issued JWT includes `aud=communityhub-api`.
+
+To exercise write operations, seed a matching user row for the demo account (UUID matches
+the Keycloak `sub` claim):
+
+```sql
+insert into users (id, username, email)
+values ('2d8f2b2c-8c07-4d3f-9a1a-7b54b1d31c3a', 'demo', 'demo@example.com')
+on conflict do nothing;
+```
 
 ## Sample usage
 

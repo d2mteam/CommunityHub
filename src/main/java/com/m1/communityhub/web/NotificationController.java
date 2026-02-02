@@ -7,6 +7,7 @@ import com.m1.communityhub.security.UserContext;
 import com.m1.communityhub.service.NotificationService;
 import com.m1.communityhub.util.CursorUtils;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,7 +32,7 @@ public class NotificationController {
         @RequestParam(defaultValue = "20") int limit
     ) {
         UserContext user = requireUser();
-        Long userId = requireUserId(user);
+        UUID userId = requireUserId(user);
         List<NotificationInbox> inboxItems = notificationService.listInbox(userId, cursor, limit);
         String nextCursor = inboxItems.isEmpty()
             ? null
@@ -46,7 +47,7 @@ public class NotificationController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void markRead(@PathVariable Long eventId) {
         UserContext user = requireUser();
-        Long userId = requireUserId(user);
+        UUID userId = requireUserId(user);
         notificationService.markRead(userId, eventId);
     }
 
@@ -54,7 +55,7 @@ public class NotificationController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void markAllRead() {
         UserContext user = requireUser();
-        Long userId = requireUserId(user);
+        UUID userId = requireUserId(user);
         notificationService.markAllRead(userId);
     }
 
@@ -66,10 +67,10 @@ public class NotificationController {
         return user;
     }
 
-    private Long requireUserId(UserContext user) {
+    private UUID requireUserId(UserContext user) {
         try {
-            return Long.valueOf(user.userId());
-        } catch (NumberFormatException ex) {
+            return UUID.fromString(user.userId());
+        } catch (IllegalArgumentException ex) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid user id");
         }
     }

@@ -6,6 +6,7 @@ import com.m1.communityhub.security.UserContext;
 import com.m1.communityhub.service.NotificationService;
 import com.m1.communityhub.service.NotificationSseService;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -28,7 +29,7 @@ public class SseController {
         if (user == null) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
-        Long userId = requireUserId(user);
+        UUID userId = requireUserId(user);
         SseEmitter emitter = sseService.register(userId);
         if (lastEventId != null && !lastEventId.isBlank()) {
             try {
@@ -42,10 +43,10 @@ public class SseController {
         return emitter;
     }
 
-    private Long requireUserId(UserContext user) {
+    private UUID requireUserId(UserContext user) {
         try {
-            return Long.valueOf(user.userId());
-        } catch (NumberFormatException ex) {
+            return UUID.fromString(user.userId());
+        } catch (IllegalArgumentException ex) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid user id");
         }
     }

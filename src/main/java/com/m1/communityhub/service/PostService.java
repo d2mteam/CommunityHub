@@ -13,6 +13,7 @@ import com.m1.communityhub.util.CursorUtils;
 import com.m1.communityhub.web.ApiException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -30,7 +31,7 @@ public class PostService {
 
     @Transactional
     public Post createPost(Long groupId, UserContext userContext, PostDtos.PostCreateRequest request) {
-        Long authorId = requireUserId(userContext);
+        UUID authorId = requireUserId(userContext);
         groupService.ensureActiveMember(groupId, authorId);
         GroupEntity group = groupRepository.findById(groupId)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Group not found"));
@@ -63,7 +64,7 @@ public class PostService {
 
     @Transactional
     public Post updatePost(Long postId, UserContext userContext, PostDtos.PostUpdateRequest request) {
-        Long userId = requireUserId(userContext);
+        UUID userId = requireUserId(userContext);
         Post post = getPost(postId);
         if (!post.getAuthor().getId().equals(userId)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Not the post author");
@@ -79,7 +80,7 @@ public class PostService {
 
     @Transactional
     public void softDelete(Long postId, UserContext userContext) {
-        Long userId = requireUserId(userContext);
+        UUID userId = requireUserId(userContext);
         Post post = getPost(postId);
         if (!post.getAuthor().getId().equals(userId)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Not the post author");
@@ -87,10 +88,10 @@ public class PostService {
         post.setStatus(PostStatus.DELETED);
     }
 
-    private Long requireUserId(UserContext userContext) {
+    private UUID requireUserId(UserContext userContext) {
         try {
-            return Long.valueOf(userContext.userId());
-        } catch (NumberFormatException ex) {
+            return UUID.fromString(userContext.userId());
+        } catch (IllegalArgumentException ex) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid user id");
         }
     }

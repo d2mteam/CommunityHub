@@ -2,6 +2,7 @@ package com.m1.communityhub.repo;
 
 import com.m1.communityhub.domain.NotificationEvent;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,9 +16,9 @@ public interface NotificationEventRepository extends JpaRepository<NotificationE
             or (e.createdAt < :cursorCreatedAt
               or (e.createdAt = :cursorCreatedAt and e.id < :cursorId)))
         order by e.createdAt desc, e.id desc
-        """)
+    """)
     List<NotificationEvent> findByUserWithCursor(
-        @Param("userId") Long userId,
+        @Param("userId") UUID userId,
         @Param("cursorCreatedAt") java.time.OffsetDateTime cursorCreatedAt,
         @Param("cursorId") Long cursorId,
         Pageable pageable
@@ -28,9 +29,9 @@ public interface NotificationEventRepository extends JpaRepository<NotificationE
         where e.targetUser.id = :userId
           and e.id > :afterId
         order by e.id asc
-        """)
+    """)
     List<NotificationEvent> findByUserAfterId(
-        @Param("userId") Long userId,
+        @Param("userId") UUID userId,
         @Param("afterId") Long afterId,
         Pageable pageable
     );

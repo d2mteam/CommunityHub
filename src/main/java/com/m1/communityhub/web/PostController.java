@@ -87,7 +87,7 @@ public class PostController {
         return new PostDtos.PostResponse(
             post.getId(),
             post.getGroup().getId(),
-            post.getAuthor().getId(),
+            post.getAuthor().getId().toString(),
             post.getTitle(),
             post.getBody(),
             post.getStatus().name(),

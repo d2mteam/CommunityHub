@@ -14,6 +14,7 @@ import com.m1.communityhub.util.CursorUtils;
 import com.m1.communityhub.web.ApiException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +33,7 @@ public class CommentService {
 
     @Transactional
     public Comment createComment(Long postId, UserContext userContext, CommentDtos.CommentCreateRequest request) {
-        Long authorId = requireUserId(userContext);
+        UUID authorId = requireUserId(userContext);
         Post post = postRepository.findByIdAndStatusNot(postId, PostStatus.DELETED)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Post not found"));
         groupService.ensureActiveMember(post.getGroup().getId(), authorId);
@@ -80,7 +81,7 @@ public class CommentService {
 
     @Transactional
     public Comment updateComment(Long commentId, UserContext userContext, CommentDtos.CommentUpdateRequest request) {
-        Long userId = requireUserId(userContext);
+        UUID userId = requireUserId(userContext);
         Comment comment = getComment(commentId);
         if (!comment.getAuthor().getId().equals(userId)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Not the comment author");
@@ -91,7 +92,7 @@ public class CommentService {
 
     @Transactional
     public void softDelete(Long commentId, UserContext userContext) {
-        Long userId = requireUserId(userContext);
+        UUID userId = requireUserId(userContext);
         Comment comment = getComment(commentId);
         if (!comment.getAuthor().getId().equals(userId)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Not the comment author");
@@ -99,10 +100,10 @@ public class CommentService {
         comment.setStatus(CommentStatus.DELETED);
     }
 
-    private Long requireUserId(UserContext userContext) {
+    private UUID requireUserId(UserContext userContext) {
         try {
-            return Long.valueOf(userContext.userId());
-        } catch (NumberFormatException ex) {
+            return UUID.fromString(userContext.userId());
+        } catch (IllegalArgumentException ex) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid user id");
         }
     }

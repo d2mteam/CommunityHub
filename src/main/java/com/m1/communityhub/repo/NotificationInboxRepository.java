@@ -4,6 +4,7 @@ import com.m1.communityhub.domain.NotificationInbox;
 import com.m1.communityhub.domain.NotificationInboxId;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,9 +20,9 @@ public interface NotificationInboxRepository extends JpaRepository<NotificationI
             or (e.createdAt < :cursorCreatedAt
               or (e.createdAt = :cursorCreatedAt and e.id < :cursorId)))
         order by e.createdAt desc, e.id desc
-        """)
+    """)
     List<NotificationInbox> findByUserWithCursor(
-        @Param("userId") Long userId,
+        @Param("userId") UUID userId,
         @Param("cursorCreatedAt") OffsetDateTime cursorCreatedAt,
         @Param("cursorId") Long cursorId,
         Pageable pageable
@@ -29,9 +30,9 @@ public interface NotificationInboxRepository extends JpaRepository<NotificationI
 
     @Modifying
     @Query("update NotificationInbox n set n.readAt = :readAt where n.user.id = :userId and n.event.id = :eventId")
-    int markRead(@Param("userId") Long userId, @Param("eventId") Long eventId, @Param("readAt") OffsetDateTime readAt);
+    int markRead(@Param("userId") UUID userId, @Param("eventId") Long eventId, @Param("readAt") OffsetDateTime readAt);
 
     @Modifying
     @Query("update NotificationInbox n set n.readAt = :readAt where n.user.id = :userId and n.readAt is null")
-    int markAllRead(@Param("userId") Long userId, @Param("readAt") OffsetDateTime readAt);
+    int markAllRead(@Param("userId") UUID userId, @Param("readAt") OffsetDateTime readAt);
 }

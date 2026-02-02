@@ -68,7 +68,7 @@ public class GroupController {
             group.getId(),
             group.getSlug(),
             group.getName(),
-            group.getOwner() == null ? null : group.getOwner().getId(),
+            group.getOwner() == null ? null : group.getOwner().getId().toString(),
             group.getCreatedAt()
         );
     }

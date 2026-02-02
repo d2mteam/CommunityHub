@@ -79,7 +79,7 @@ public class CommentController {
         return new CommentDtos.CommentResponse(
             comment.getId(),
             comment.getPost().getId(),
-            comment.getAuthor().getId(),
+            comment.getAuthor().getId().toString(),
             comment.getParent() == null ? null : comment.getParent().getId(),
             comment.getBody(),
             comment.getStatus().name(),
