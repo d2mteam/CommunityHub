@@ -9,10 +9,12 @@ import com.m1.communityhub.dto.CommentDtos;
 import com.m1.communityhub.repo.CommentRepository;
 import com.m1.communityhub.repo.PostRepository;
 import com.m1.communityhub.repo.UserRepository;
+import com.m1.communityhub.security.UserContext;
 import com.m1.communityhub.util.CursorUtils;
 import com.m1.communityhub.web.ApiException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -30,7 +32,8 @@ public class CommentService {
     private final NotificationService notificationService;
 
     @Transactional
-    public Comment createComment(Long postId, Long authorId, CommentDtos.CommentCreateRequest request) {
+    public Comment createComment(Long postId, UserContext userContext, CommentDtos.CommentCreateRequest request) {
+        UUID authorId = requireUserId(userContext);
         Post post = postRepository.findByIdAndStatusNot(postId, PostStatus.DELETED)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Post not found"));
         groupService.ensureActiveMember(post.getGroup().getId(), authorId);
@@ -77,7 +80,8 @@ public class CommentService {
     }
 
     @Transactional
-    public Comment updateComment(Long commentId, Long userId, CommentDtos.CommentUpdateRequest request) {
+    public Comment updateComment(Long commentId, UserContext userContext, CommentDtos.CommentUpdateRequest request) {
+        UUID userId = requireUserId(userContext);
         Comment comment = getComment(commentId);
         if (!comment.getAuthor().getId().equals(userId)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Not the comment author");
@@ -87,11 +91,20 @@ public class CommentService {
     }
 
     @Transactional
-    public void softDelete(Long commentId, Long userId) {
+    public void softDelete(Long commentId, UserContext userContext) {
+        UUID userId = requireUserId(userContext);
         Comment comment = getComment(commentId);
         if (!comment.getAuthor().getId().equals(userId)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "Not the comment author");
         }
         comment.setStatus(CommentStatus.DELETED);
+    }
+
+    private UUID requireUserId(UserContext userContext) {
+        try {
+            return UUID.fromString(userContext.userId());
+        } catch (IllegalArgumentException ex) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid user id");
+        }
     }
 }

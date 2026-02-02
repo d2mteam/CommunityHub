@@ -1,8 +1,9 @@
+create extension if not exists "pgcrypto";
+
 create table users (
-    id bigserial primary key,
+    id uuid primary key default gen_random_uuid(),
     username varchar(100) not null unique,
     email varchar(255) not null unique,
-    password_hash varchar(255) not null,
     created_at timestamptz not null default now()
 );
 
@@ -10,13 +11,13 @@ create table groups (
     id bigserial primary key,
     slug varchar(150) not null unique,
     name varchar(255) not null,
-    owner_id bigint references users(id),
+    owner_id uuid references users(id),
     created_at timestamptz not null default now()
 );
 
 create table group_members (
     group_id bigint not null references groups(id),
-    user_id bigint not null references users(id),
+    user_id uuid not null references users(id),
     role varchar(30) not null default 'MEMBER',
     state varchar(30) not null default 'ACTIVE',
     joined_at timestamptz not null default now(),
@@ -28,7 +29,7 @@ create index idx_group_members_user_group on group_members (user_id, group_id);
 create table posts (
     id bigserial primary key,
     group_id bigint not null references groups(id),
-    author_id bigint not null references users(id),
+    author_id uuid not null references users(id),
     title varchar(255) not null,
     body text not null,
     status varchar(30) not null default 'ACTIVE',
@@ -42,7 +43,7 @@ create index idx_posts_author_created on posts (author_id, created_at desc, id d
 create table comments (
     id bigserial primary key,
     post_id bigint not null references posts(id),
-    author_id bigint not null references users(id),
+    author_id uuid not null references users(id),
     parent_id bigint references comments(id),
     body text not null,
     status varchar(30) not null default 'ACTIVE',
@@ -56,8 +57,8 @@ create index idx_comments_parent_created on comments (parent_id, created_at asc,
 create table notif_events (
     id bigserial primary key,
     type varchar(50) not null,
-    actor_id bigint references users(id),
-    target_user_id bigint references users(id),
+    actor_id uuid references users(id),
+    target_user_id uuid references users(id),
     entity_type varchar(30) not null,
     entity_id bigint not null,
     payload jsonb,
@@ -67,7 +68,7 @@ create table notif_events (
 create index idx_notif_events_target_created on notif_events (target_user_id, created_at desc, id desc);
 
 create table notif_inbox (
-    user_id bigint not null references users(id),
+    user_id uuid not null references users(id),
     event_id bigint not null references notif_events(id),
     read_at timestamptz,
     primary key (user_id, event_id)

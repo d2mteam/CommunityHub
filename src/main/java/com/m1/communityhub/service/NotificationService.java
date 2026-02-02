@@ -18,6 +18,7 @@ import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -59,13 +60,13 @@ public class NotificationService {
         sseService.sendNotification(target.getId(), toDto(saved, null));
     }
 
-    public List<NotificationInbox> listInbox(Long userId, String cursor, int limit) {
+    public List<NotificationInbox> listInbox(UUID userId, String cursor, int limit) {
         CursorParams params = CursorParams.from(cursor);
         return inboxRepository.findByUserWithCursor(userId, params.createdAt, params.id, PageRequest.of(0, limit));
     }
 
     @Transactional
-    public void markRead(Long userId, Long eventId) {
+    public void markRead(UUID userId, Long eventId) {
         int updated = inboxRepository.markRead(userId, eventId, OffsetDateTime.now());
         if (updated == 0) {
             throw new ApiException(HttpStatus.NOT_FOUND, "Notification not found");
@@ -73,11 +74,11 @@ public class NotificationService {
     }
 
     @Transactional
-    public void markAllRead(Long userId) {
+    public void markAllRead(UUID userId) {
         inboxRepository.markAllRead(userId, OffsetDateTime.now());
     }
 
-    public List<NotificationEvent> listEventsAfter(Long userId, Long lastEventId, int limit) {
+    public List<NotificationEvent> listEventsAfter(UUID userId, Long lastEventId, int limit) {
         return eventRepository.findByUserAfterId(userId, lastEventId, PageRequest.of(0, limit));
     }
 
@@ -93,8 +94,8 @@ public class NotificationService {
         return new NotificationDtos.NotificationResponse(
             event.getId(),
             event.getType().name(),
-            event.getActor() == null ? null : event.getActor().getId(),
-            event.getTargetUser() == null ? null : event.getTargetUser().getId(),
+            event.getActor() == null ? null : event.getActor().getId().toString(),
+            event.getTargetUser() == null ? null : event.getTargetUser().getId().toString(),
             event.getEntityType().name(),
             event.getEntityId(),
             payloadNode,

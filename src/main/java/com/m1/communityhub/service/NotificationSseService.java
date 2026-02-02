@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.slf4j.Logger;
@@ -19,22 +20,22 @@ public class NotificationSseService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationSseService.class);
     private static final long EMITTER_TIMEOUT_MS = Duration.ofMinutes(30).toMillis();
 
-    private final Map<Long, CopyOnWriteArrayList<SseEmitter>> emitters = new ConcurrentHashMap<>();
+    private final Map<UUID, CopyOnWriteArrayList<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
-    public SseEmitter register(Long userId) {
+    public SseEmitter register(UUID userId) {
         SseEmitter emitter = new SseEmitter(EMITTER_TIMEOUT_MS);
         registerEmitter(userId, emitter);
         return emitter;
     }
 
-    void registerEmitter(Long userId, SseEmitter emitter) {
+    void registerEmitter(UUID userId, SseEmitter emitter) {
         emitters.computeIfAbsent(userId, key -> new CopyOnWriteArrayList<>()).add(emitter);
         emitter.onCompletion(() -> removeEmitter(userId, emitter));
         emitter.onTimeout(() -> removeEmitter(userId, emitter));
         emitter.onError(error -> removeEmitter(userId, emitter));
     }
 
-    public void sendNotification(Long userId, NotificationDtos.NotificationResponse payload) {
+    public void sendNotification(UUID userId, NotificationDtos.NotificationResponse payload) {
         List<SseEmitter> userEmitters = emitters.get(userId);
         if (userEmitters == null) {
             return;
@@ -53,8 +54,8 @@ public class NotificationSseService {
 
     @Scheduled(fixedRate = 20000)
     public void sendHeartbeat() {
-        for (Map.Entry<Long, CopyOnWriteArrayList<SseEmitter>> entry : emitters.entrySet()) {
-            Long userId = entry.getKey();
+        for (Map.Entry<UUID, CopyOnWriteArrayList<SseEmitter>> entry : emitters.entrySet()) {
+            UUID userId = entry.getKey();
             for (SseEmitter emitter : entry.getValue()) {
                 try {
                     emitter.send(SseEmitter.event().name("heartbeat").data("ping"));
@@ -72,7 +73,7 @@ public class NotificationSseService {
         emitters.clear();
     }
 
-    private void removeEmitter(Long userId, SseEmitter emitter) {
+    private void removeEmitter(UUID userId, SseEmitter emitter) {
         List<SseEmitter> userEmitters = emitters.get(userId);
         if (userEmitters != null) {
             userEmitters.remove(emitter);

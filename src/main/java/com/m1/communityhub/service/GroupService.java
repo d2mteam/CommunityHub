@@ -10,7 +10,9 @@ import com.m1.communityhub.dto.GroupDtos;
 import com.m1.communityhub.repo.GroupMemberRepository;
 import com.m1.communityhub.repo.GroupRepository;
 import com.m1.communityhub.repo.UserRepository;
+import com.m1.communityhub.security.UserContext;
 import com.m1.communityhub.web.ApiException;
+import java.util.UUID;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +28,8 @@ public class GroupService {
     private final UserRepository userRepository;
 
     @Transactional
-    public GroupEntity createGroup(Long ownerId, GroupDtos.GroupCreateRequest request) {
+    public GroupEntity createGroup(UserContext userContext, GroupDtos.GroupCreateRequest request) {
+        UUID ownerId = requireUserId(userContext);
         groupRepository.findBySlug(request.getSlug()).ifPresent(existing -> {
             throw new ApiException(HttpStatus.CONFLICT, "Group slug already exists");
         });
@@ -54,7 +57,8 @@ public class GroupService {
     }
 
     @Transactional
-    public void joinGroup(Long groupId, Long userId) {
+    public void joinGroup(Long groupId, UserContext userContext) {
+        UUID userId = requireUserId(userContext);
         GroupEntity group = getGroup(groupId);
         UserEntity user = userRepository.findById(userId)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "User not found"));
@@ -68,15 +72,24 @@ public class GroupService {
     }
 
     @Transactional
-    public void leaveGroup(Long groupId, Long userId) {
+    public void leaveGroup(Long groupId, UserContext userContext) {
+        UUID userId = requireUserId(userContext);
         GroupMember member = groupMemberRepository.findById(new GroupMemberId(groupId, userId))
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Membership not found"));
         member.setState(GroupMemberState.LEFT);
     }
 
-    public void ensureActiveMember(Long groupId, Long userId) {
+    public void ensureActiveMember(Long groupId, UUID userId) {
         if (!groupMemberRepository.existsByIdGroupIdAndIdUserIdAndState(groupId, userId, GroupMemberState.ACTIVE)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "User is not an active group member");
+        }
+    }
+
+    private UUID requireUserId(UserContext userContext) {
+        try {
+            return UUID.fromString(userContext.userId());
+        } catch (IllegalArgumentException ex) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid user id");
         }
     }
 }

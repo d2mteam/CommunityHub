@@ -34,7 +34,7 @@ public final class CommentDtos {
     public static class CommentResponse {
         private Long id;
         private Long postId;
-        private Long authorId;
+        private String authorId;
         private Long parentId;
         private String body;
         private String status;
