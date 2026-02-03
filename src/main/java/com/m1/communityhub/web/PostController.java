@@ -7,10 +7,13 @@ import com.m1.communityhub.config.security.UserContext;
 import com.m1.communityhub.service.PostService;
 import com.m1.communityhub.util.CursorUtils;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping
 @RequiredArgsConstructor
+@Validated
 public class PostController {
     private final PostService postService;
 
@@ -44,7 +48,7 @@ public class PostController {
     public PostDtos.PostListResponse listPosts(
         @PathVariable Long groupId,
         @RequestParam(required = false) String cursor,
-        @RequestParam(defaultValue = "20") int limit
+        @RequestParam(defaultValue = "20") @Min(1) @Max(100) int limit
     ) {
         List<Post> posts = postService.listPosts(groupId, cursor, limit);
         String nextCursor = posts.isEmpty()

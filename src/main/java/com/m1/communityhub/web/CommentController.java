@@ -7,10 +7,13 @@ import com.m1.communityhub.config.security.UserContext;
 import com.m1.communityhub.service.CommentService;
 import com.m1.communityhub.util.CursorUtils;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 public class CommentController {
     private final CommentService commentService;
 
@@ -41,7 +45,7 @@ public class CommentController {
     public CommentDtos.CommentListResponse listComments(
         @PathVariable Long postId,
         @RequestParam(required = false) String cursor,
-        @RequestParam(defaultValue = "50") int limit
+        @RequestParam(defaultValue = "50") @Min(1) @Max(100) int limit
     ) {
         List<Comment> comments = commentService.listComments(postId, cursor, limit);
         String nextCursor = comments.isEmpty()

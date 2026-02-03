@@ -6,9 +6,12 @@ import com.m1.communityhub.config.security.SecurityUtils;
 import com.m1.communityhub.config.security.UserContext;
 import com.m1.communityhub.service.NotificationService;
 import com.m1.communityhub.util.CursorUtils;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/notifications")
+@Validated
 public class NotificationController {
     private final NotificationService notificationService;
 
@@ -29,7 +33,7 @@ public class NotificationController {
     @GetMapping
     public NotificationDtos.NotificationListResponse listNotifications(
         @RequestParam(required = false) String cursor,
-        @RequestParam(defaultValue = "20") int limit
+        @RequestParam(defaultValue = "20") @Min(1) @Max(100) int limit
     ) {
         UserContext user = requireUser();
         UUID userId = requireUserId(user);
