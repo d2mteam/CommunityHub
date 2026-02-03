@@ -9,6 +9,9 @@ import com.m1.communityhub.dto.CommentDtos;
 import com.m1.communityhub.repo.CommentRepository;
 import com.m1.communityhub.repo.PostRepository;
 import com.m1.communityhub.repo.UserRepository;
+import com.m1.communityhub.config.security.permission.HasGroupPermission;
+import com.m1.communityhub.config.security.permission.PermissionAction;
+import com.m1.communityhub.config.security.permission.PermissionResource;
 import com.m1.communityhub.config.security.pro.UserContext;
 import com.m1.communityhub.util.CursorUtils;
 import com.m1.communityhub.web.ApiException;
@@ -28,15 +31,14 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final GroupService groupService;
     private final NotificationService notificationService;
 
     @Transactional
+    @HasGroupPermission(resource = PermissionResource.COMMENT, action = PermissionAction.CREATE, targetIdParam = "postId")
     public Comment createComment(Long postId, UserContext userContext, CommentDtos.CommentCreateRequest request) {
         UUID authorId = requireUserId(userContext);
         Post post = postRepository.findByIdAndStatusNot(postId, PostStatus.DELETED)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Post not found"));
-        groupService.ensureActiveMember(post.getGroup().getId(), authorId);
         UserEntity author = userRepository.findById(authorId)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "User not found"));
         Comment parent = null;
@@ -80,23 +82,17 @@ public class CommentService {
     }
 
     @Transactional
+    @HasGroupPermission(resource = PermissionResource.COMMENT, action = PermissionAction.UPDATE, targetIdParam = "commentId")
     public Comment updateComment(Long commentId, UserContext userContext, CommentDtos.CommentUpdateRequest request) {
-        UUID userId = requireUserId(userContext);
         Comment comment = getComment(commentId);
-        if (!comment.getAuthor().getId().equals(userId)) {
-            throw new ApiException(HttpStatus.FORBIDDEN, "Not the comment author");
-        }
         comment.setBody(request.getBody());
         return comment;
     }
 
     @Transactional
+    @HasGroupPermission(resource = PermissionResource.COMMENT, action = PermissionAction.DELETE, targetIdParam = "commentId")
     public void softDelete(Long commentId, UserContext userContext) {
-        UUID userId = requireUserId(userContext);
         Comment comment = getComment(commentId);
-        if (!comment.getAuthor().getId().equals(userId)) {
-            throw new ApiException(HttpStatus.FORBIDDEN, "Not the comment author");
-        }
         comment.setStatus(CommentStatus.DELETED);
     }
 
