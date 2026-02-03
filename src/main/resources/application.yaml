@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: dev
   jpa:
     open-in-view: 'false'
     properties:
@@ -11,14 +13,6 @@ spring:
     username: admin
     url: jdbc:postgresql://localhost:5432/communityhub
     password: s3crect
-  jackson:
-    serialization:
-      WRITE_DATES_AS_TIMESTAMPS: 'false'
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8081/realms/communityhub
 app:
   security:
     jwt:

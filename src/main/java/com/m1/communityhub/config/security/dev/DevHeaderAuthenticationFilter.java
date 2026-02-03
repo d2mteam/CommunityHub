@@ -1,10 +1,12 @@
-package com.m1.communityhub.security;
+package com.m1.communityhub.config.security.dev;
 
+import com.m1.communityhub.config.security.UserContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -47,7 +49,7 @@ public class DevHeaderAuthenticationFilter extends OncePerRequestFilter {
         if (raw == null || raw.isBlank()) {
             return Set.of();
         }
-        return java.util.Arrays.stream(raw.split("[, ]+"))
+        return Arrays.stream(raw.split("[, ]+"))
             .map(String::trim)
             .filter(value -> !value.isBlank())
             .collect(Collectors.toSet());

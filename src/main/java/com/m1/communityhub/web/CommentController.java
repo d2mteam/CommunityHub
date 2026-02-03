@@ -2,8 +2,8 @@ package com.m1.communityhub.web;
 
 import com.m1.communityhub.domain.Comment;
 import com.m1.communityhub.dto.CommentDtos;
-import com.m1.communityhub.security.SecurityUtils;
-import com.m1.communityhub.security.UserContext;
+import com.m1.communityhub.config.security.SecurityUtils;
+import com.m1.communityhub.config.security.UserContext;
 import com.m1.communityhub.service.CommentService;
 import com.m1.communityhub.util.CursorUtils;
 import jakarta.validation.Valid;

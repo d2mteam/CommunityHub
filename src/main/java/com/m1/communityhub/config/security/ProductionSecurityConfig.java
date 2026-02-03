@@ -1,4 +1,4 @@
-package com.m1.communityhub.security;
+package com.m1.communityhub.config.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -20,21 +21,16 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @Profile("!dev")
 public class ProductionSecurityConfig {
-    private final String issuerUri;
-    private final String requiredAudiences;
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuerUri;
 
-    public ProductionSecurityConfig(
-        @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuerUri,
-        @Value("${app.security.jwt.audience:}") String requiredAudiences
-    ) {
-        this.issuerUri = issuerUri;
-        this.requiredAudiences = requiredAudiences;
-    }
+    @Value("${app.security.jwt.audience:}")
+    private String requiredAudiences;
 
     @Bean
     public SecurityFilterChain productionSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2
@@ -45,7 +41,7 @@ public class ProductionSecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        NimbusJwtDecoder decoder = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(issuerUri);
+        NimbusJwtDecoder decoder = JwtDecoders.fromIssuerLocation(issuerUri);
         OAuth2TokenValidator<Jwt> issuerValidator = JwtValidators.createDefaultWithIssuer(issuerUri);
         OAuth2TokenValidator<Jwt> audienceValidator =
             new AudienceValidator(AudienceValidator.parseAudiences(requiredAudiences));

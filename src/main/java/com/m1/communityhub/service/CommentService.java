@@ -9,7 +9,7 @@ import com.m1.communityhub.dto.CommentDtos;
 import com.m1.communityhub.repo.CommentRepository;
 import com.m1.communityhub.repo.PostRepository;
 import com.m1.communityhub.repo.UserRepository;
-import com.m1.communityhub.security.UserContext;
+import com.m1.communityhub.config.security.UserContext;
 import com.m1.communityhub.util.CursorUtils;
 import com.m1.communityhub.web.ApiException;
 import java.time.OffsetDateTime;

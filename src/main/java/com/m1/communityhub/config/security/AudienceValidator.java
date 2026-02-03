@@ -1,4 +1,4 @@
-package com.m1.communityhub.security;
+package com.m1.communityhub.config.security;
 
 import java.util.List;
 import java.util.Set;

@@ -1,8 +1,8 @@
 package com.m1.communityhub.web;
 
 import com.m1.communityhub.dto.UserDtos;
-import com.m1.communityhub.security.SecurityUtils;
-import com.m1.communityhub.security.UserContext;
+import com.m1.communityhub.config.security.SecurityUtils;
+import com.m1.communityhub.config.security.UserContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
