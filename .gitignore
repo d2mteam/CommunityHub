@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Dev token material
+dev-private.pem
+.env
+.env.local

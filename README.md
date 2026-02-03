@@ -13,7 +13,8 @@ Update `src/main/resources/application.yaml` as needed. Default settings:
 
 - Database: `jdbc:postgresql://localhost:5432/communityhub`
 - Username/password: `admin` / `s3crect`
-- Keycloak issuer: `spring.security.oauth2.resourceserver.jwt.issuer-uri`
+- Keycloak issuer: `spring.security.oauth2.resourceserver.jwt.issuer-uri` (prod)
+- Keycloak JWKS: `spring.security.oauth2.resourceserver.jwt.jwk-set-uri` (prod)
 - Keycloak audience: `app.security.jwt.audience`
 
 The API trusts Keycloak-issued JWTs and validates issuer, audience, signature, and expiry.
@@ -27,6 +28,43 @@ The `sub` claim must align with the local `users.id` (UUID) used for content own
 ```
 
  Liquibase migrations run automatically on startup.
+
+## Run without Keycloak (DEV)
+
+The DEV profile uses a locally signed **Keycloak-shaped** JWT (same claims/structure as production)
+and validates it using a local public key. This keeps the authorization logic identical while
+removing the Keycloak runtime dependency for local work.
+
+1) Generate a local RSA keypair (private key is gitignored, public key is committed):
+
+```bash
+./scripts/generate-dev-keypair.sh
+```
+
+2) Create a `.env` based on `.env.example` and generate a token:
+
+```bash
+cp .env.example .env
+DEV_TOKEN=$(node ./scripts/generate-dev-token.js)
+```
+
+3) Run the API with the dev profile:
+
+```bash
+SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun
+```
+
+4) Use the printed token in Postman/curl:
+
+```bash
+curl -H "Authorization: Bearer $DEV_TOKEN" http://localhost:8080/me
+```
+
+For frontend clients, set `VITE_DEV_TOKEN` in `.env.local` (see `.env.example`) and attach it
+as `Authorization: Bearer <token>` on API requests.
+
+> The dev token is only accepted when `SPRING_PROFILES_ACTIVE=dev`. Production uses JWKS
+> validation and rejects locally signed tokens.
 
 ## Docker Compose (app + Postgres + Keycloak)
 
