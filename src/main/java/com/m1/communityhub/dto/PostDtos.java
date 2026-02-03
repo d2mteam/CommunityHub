@@ -4,13 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.OffsetDateTime;
 import java.util.List;
+
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PostDtos {
-    private PostDtos() {
-    }
 
     @Data
     @NoArgsConstructor
@@ -30,6 +31,8 @@ public final class PostDtos {
     public static class PostUpdateRequest {
         @Size(max = 255)
         private String title;
+
+        @NotBlank
         private String body;
     }
 

@@ -1,12 +1,13 @@
 package com.m1.communityhub.dto;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UserDtos {
-    private UserDtos() {
-    }
+
 
     @Data
     @NoArgsConstructor

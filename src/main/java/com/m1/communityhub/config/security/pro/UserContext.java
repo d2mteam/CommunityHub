@@ -1,4 +1,4 @@
-package com.m1.communityhub.config.security;
+package com.m1.communityhub.config.security.pro;
 
 import java.util.Collection;
 import java.util.Collections;

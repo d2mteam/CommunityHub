@@ -2,8 +2,8 @@ package com.m1.communityhub.web;
 
 import com.m1.communityhub.domain.GroupEntity;
 import com.m1.communityhub.dto.GroupDtos;
-import com.m1.communityhub.config.security.SecurityUtils;
-import com.m1.communityhub.config.security.UserContext;
+import com.m1.communityhub.config.security.pro.SecurityUtils;
+import com.m1.communityhub.config.security.pro.UserContext;
 import com.m1.communityhub.service.GroupService;
 import jakarta.validation.Valid;
 import java.util.List;

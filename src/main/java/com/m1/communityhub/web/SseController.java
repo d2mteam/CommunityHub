@@ -1,8 +1,8 @@
 package com.m1.communityhub.web;
 
 import com.m1.communityhub.domain.NotificationEvent;
-import com.m1.communityhub.config.security.SecurityUtils;
-import com.m1.communityhub.config.security.UserContext;
+import com.m1.communityhub.config.security.pro.SecurityUtils;
+import com.m1.communityhub.config.security.pro.UserContext;
 import com.m1.communityhub.service.NotificationService;
 import com.m1.communityhub.service.NotificationSseService;
 import java.util.List;

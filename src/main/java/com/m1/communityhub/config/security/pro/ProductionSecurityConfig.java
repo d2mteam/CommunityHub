@@ -1,4 +1,4 @@
-package com.m1.communityhub.config.security;
+package com.m1.communityhub.config.security.pro;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

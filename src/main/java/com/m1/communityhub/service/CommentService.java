@@ -9,7 +9,7 @@ import com.m1.communityhub.dto.CommentDtos;
 import com.m1.communityhub.repo.CommentRepository;
 import com.m1.communityhub.repo.PostRepository;
 import com.m1.communityhub.repo.UserRepository;
-import com.m1.communityhub.config.security.UserContext;
+import com.m1.communityhub.config.security.pro.UserContext;
 import com.m1.communityhub.util.CursorUtils;
 import com.m1.communityhub.web.ApiException;
 import java.time.OffsetDateTime;
@@ -55,7 +55,7 @@ public class CommentService {
         Comment saved = commentRepository.save(comment);
 
         if (parent != null) {
-            notificationService.notifyReplyCreated(saved, parent, post, author);
+            notificationService.notifyReplyCreated(saved, parent, author);
         } else {
             notificationService.notifyCommentCreated(saved, post, author);
         }

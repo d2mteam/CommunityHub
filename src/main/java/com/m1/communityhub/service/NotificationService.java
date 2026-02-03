@@ -48,7 +48,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void notifyReplyCreated(Comment reply, Comment parent, Post post, UserEntity actor) {
+    public void notifyReplyCreated(Comment reply, Comment parent, UserEntity actor) {
         UserEntity target = parent.getAuthor();
         if (target.getId().equals(actor.getId())) {
             return;

@@ -10,7 +10,7 @@ import com.m1.communityhub.dto.GroupDtos;
 import com.m1.communityhub.repo.GroupMemberRepository;
 import com.m1.communityhub.repo.GroupRepository;
 import com.m1.communityhub.repo.UserRepository;
-import com.m1.communityhub.config.security.UserContext;
+import com.m1.communityhub.config.security.pro.UserContext;
 import com.m1.communityhub.web.ApiException;
 import java.util.UUID;
 import java.util.List;

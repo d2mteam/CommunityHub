@@ -1,15 +1,17 @@
 package com.m1.communityhub.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
 import java.time.OffsetDateTime;
 import java.util.List;
+
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class NotificationDtos {
-    private NotificationDtos() {
-    }
 
     @Data
     @NoArgsConstructor

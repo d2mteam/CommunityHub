@@ -2,8 +2,8 @@ package com.m1.communityhub.web;
 
 import com.m1.communityhub.domain.Post;
 import com.m1.communityhub.dto.PostDtos;
-import com.m1.communityhub.config.security.SecurityUtils;
-import com.m1.communityhub.config.security.UserContext;
+import com.m1.communityhub.config.security.pro.SecurityUtils;
+import com.m1.communityhub.config.security.pro.UserContext;
 import com.m1.communityhub.service.PostService;
 import com.m1.communityhub.util.CursorUtils;
 import jakarta.validation.Valid;

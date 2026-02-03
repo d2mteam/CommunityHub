@@ -3,13 +3,14 @@ package com.m1.communityhub.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.OffsetDateTime;
+
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GroupDtos {
-    private GroupDtos() {
-    }
 
     @Data
     @NoArgsConstructor
