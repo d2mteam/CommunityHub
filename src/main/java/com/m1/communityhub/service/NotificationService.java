@@ -43,7 +43,11 @@ public class NotificationService {
         NotificationEvent event = buildEvent(NotificationType.COMMENT_CREATED, actor, target, NotificationEntityType.POST,
             post.getId(), comment, null);
         NotificationEvent saved = eventRepository.save(event);
-        inboxRepository.save(new NotificationInbox(target, saved));
+        inboxRepository.save(NotificationInbox.builder()
+            .id(new com.m1.communityhub.domain.NotificationInboxId(target.getId(), saved.getId()))
+            .user(target)
+            .event(saved)
+            .build());
         sseService.sendNotification(target.getId(), toDto(saved, null));
     }
 
@@ -56,7 +60,11 @@ public class NotificationService {
         NotificationEvent event = buildEvent(NotificationType.REPLY_CREATED, actor, target, NotificationEntityType.COMMENT,
             parent.getId(), reply, parent.getId());
         NotificationEvent saved = eventRepository.save(event);
-        inboxRepository.save(new NotificationInbox(target, saved));
+        inboxRepository.save(NotificationInbox.builder()
+            .id(new com.m1.communityhub.domain.NotificationInboxId(target.getId(), saved.getId()))
+            .user(target)
+            .event(saved)
+            .build());
         sseService.sendNotification(target.getId(), toDto(saved, null));
     }
 
@@ -113,14 +121,14 @@ public class NotificationService {
         Comment comment,
         Long parentCommentId
     ) {
-        NotificationEvent event = new NotificationEvent();
-        event.setType(type);
-        event.setActor(actor);
-        event.setTargetUser(target);
-        event.setEntityType(entityType);
-        event.setEntityId(entityId);
-        event.setPayload(buildPayload(comment, parentCommentId));
-        return event;
+        return NotificationEvent.builder()
+            .type(type)
+            .actor(actor)
+            .targetUser(target)
+            .entityType(entityType)
+            .entityId(entityId)
+            .payload(buildPayload(comment, parentCommentId))
+            .build();
     }
 
     private String buildPayload(Comment comment, Long parentCommentId) {

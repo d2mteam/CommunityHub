@@ -8,6 +8,9 @@ import com.m1.communityhub.dto.PostDtos;
 import com.m1.communityhub.repo.GroupRepository;
 import com.m1.communityhub.repo.PostRepository;
 import com.m1.communityhub.repo.UserRepository;
+import com.m1.communityhub.config.security.permission.HasGroupPermission;
+import com.m1.communityhub.config.security.permission.PermissionAction;
+import com.m1.communityhub.config.security.permission.PermissionResource;
 import com.m1.communityhub.config.security.pro.UserContext;
 import com.m1.communityhub.util.CursorUtils;
 import com.m1.communityhub.web.ApiException;
@@ -27,21 +30,21 @@ public class PostService {
     private final PostRepository postRepository;
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
-    private final GroupService groupService;
 
     @Transactional
+    @HasGroupPermission(resource = PermissionResource.POST, action = PermissionAction.CREATE, targetIdParam = "groupId")
     public Post createPost(Long groupId, UserContext userContext, PostDtos.PostCreateRequest request) {
         UUID authorId = requireUserId(userContext);
-        groupService.ensureActiveMember(groupId, authorId);
         GroupEntity group = groupRepository.findById(groupId)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Group not found"));
         UserEntity author = userRepository.findById(authorId)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "User not found"));
-        Post post = new Post();
-        post.setGroup(group);
-        post.setAuthor(author);
-        post.setTitle(request.getTitle());
-        post.setBody(request.getBody());
+        Post post = Post.builder()
+            .group(group)
+            .author(author)
+            .title(request.getTitle())
+            .body(request.getBody())
+            .build();
         return postRepository.save(post);
     }
 
@@ -63,12 +66,9 @@ public class PostService {
     }
 
     @Transactional
+    @HasGroupPermission(resource = PermissionResource.POST, action = PermissionAction.UPDATE, targetIdParam = "postId")
     public Post updatePost(Long postId, UserContext userContext, PostDtos.PostUpdateRequest request) {
-        UUID userId = requireUserId(userContext);
         Post post = getPost(postId);
-        if (!post.getAuthor().getId().equals(userId)) {
-            throw new ApiException(HttpStatus.FORBIDDEN, "Not the post author");
-        }
         if (request.getTitle() != null) {
             post.setTitle(request.getTitle());
         }
@@ -79,12 +79,9 @@ public class PostService {
     }
 
     @Transactional
+    @HasGroupPermission(resource = PermissionResource.POST, action = PermissionAction.DELETE, targetIdParam = "postId")
     public void softDelete(Long postId, UserContext userContext) {
-        UUID userId = requireUserId(userContext);
         Post post = getPost(postId);
-        if (!post.getAuthor().getId().equals(userId)) {
-            throw new ApiException(HttpStatus.FORBIDDEN, "Not the post author");
-        }
         post.setStatus(PostStatus.DELETED);
     }
 

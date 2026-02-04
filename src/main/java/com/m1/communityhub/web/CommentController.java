@@ -4,6 +4,7 @@ import com.m1.communityhub.domain.Comment;
 import com.m1.communityhub.dto.CommentDtos;
 import com.m1.communityhub.config.security.pro.SecurityUtils;
 import com.m1.communityhub.config.security.pro.UserContext;
+import com.m1.communityhub.mapper.CommentMapper;
 import com.m1.communityhub.service.CommentService;
 import com.m1.communityhub.util.CursorUtils;
 import jakarta.validation.Valid;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class CommentController {
     private final CommentService commentService;
+    private final CommentMapper commentMapper;
 
     @PostMapping("/posts/{postId}/comments")
     @ResponseStatus(HttpStatus.CREATED)
@@ -38,7 +40,7 @@ public class CommentController {
     ) {
         UserContext user = requireUser();
         Comment comment = commentService.createComment(postId, user, request);
-        return toResponse(comment);
+        return commentMapper.toResponse(comment);
     }
 
     @GetMapping("/posts/{postId}/comments")
@@ -51,7 +53,7 @@ public class CommentController {
         String nextCursor = comments.isEmpty()
             ? null
             : CursorUtils.encode(comments.getLast().getCreatedAt(), comments.getLast().getId());
-        List<CommentDtos.CommentResponse> items = comments.stream().map(this::toResponse).toList();
+        List<CommentDtos.CommentResponse> items = comments.stream().map(commentMapper::toResponse).toList();
         return new CommentDtos.CommentListResponse(items, nextCursor);
     }
 
@@ -61,7 +63,7 @@ public class CommentController {
         @Valid @RequestBody CommentDtos.CommentUpdateRequest request
     ) {
         UserContext user = requireUser();
-        return toResponse(commentService.updateComment(commentId, user, request));
+        return commentMapper.toResponse(commentService.updateComment(commentId, user, request));
     }
 
     @DeleteMapping("/comments/{commentId}")
@@ -79,16 +81,4 @@ public class CommentController {
         return user;
     }
 
-    private CommentDtos.CommentResponse toResponse(Comment comment) {
-        return new CommentDtos.CommentResponse(
-            comment.getId(),
-            comment.getPost().getId(),
-            comment.getAuthor().getId().toString(),
-            comment.getParent() == null ? null : comment.getParent().getId(),
-            comment.getBody(),
-            comment.getStatus().name(),
-            comment.getCreatedAt(),
-            comment.getUpdatedAt()
-        );
-    }
 }

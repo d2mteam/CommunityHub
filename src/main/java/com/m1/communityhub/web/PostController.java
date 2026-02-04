@@ -4,6 +4,7 @@ import com.m1.communityhub.domain.Post;
 import com.m1.communityhub.dto.PostDtos;
 import com.m1.communityhub.config.security.pro.SecurityUtils;
 import com.m1.communityhub.config.security.pro.UserContext;
+import com.m1.communityhub.mapper.PostMapper;
 import com.m1.communityhub.service.PostService;
 import com.m1.communityhub.util.CursorUtils;
 import jakarta.validation.Valid;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class PostController {
     private final PostService postService;
+    private final PostMapper postMapper;
 
 
     @PostMapping("/groups/{groupId}/posts")
@@ -41,7 +43,7 @@ public class PostController {
     ) {
         UserContext user = requireUser();
         Post post = postService.createPost(groupId, user, request);
-        return toResponse(post);
+        return postMapper.toResponse(post);
     }
 
     @GetMapping("/groups/{groupId}/posts")
@@ -54,13 +56,13 @@ public class PostController {
         String nextCursor = posts.isEmpty()
             ? null
             : CursorUtils.encode(posts.getLast().getCreatedAt(), posts.getLast().getId());
-        List<PostDtos.PostResponse> items = posts.stream().map(this::toResponse).toList();
+        List<PostDtos.PostResponse> items = posts.stream().map(postMapper::toResponse).toList();
         return new PostDtos.PostListResponse(items, nextCursor);
     }
 
     @GetMapping("/posts/{postId}")
     public PostDtos.PostResponse getPost(@PathVariable Long postId) {
-        return toResponse(postService.getPost(postId));
+        return postMapper.toResponse(postService.getPost(postId));
     }
 
     @PatchMapping("/posts/{postId}")
@@ -69,7 +71,7 @@ public class PostController {
         @Valid @RequestBody PostDtos.PostUpdateRequest request
     ) {
         UserContext user = requireUser();
-        return toResponse(postService.updatePost(postId, user, request));
+        return postMapper.toResponse(postService.updatePost(postId, user, request));
     }
 
     @DeleteMapping("/posts/{postId}")
@@ -87,16 +89,4 @@ public class PostController {
         return user;
     }
 
-    private PostDtos.PostResponse toResponse(Post post) {
-        return new PostDtos.PostResponse(
-            post.getId(),
-            post.getGroup().getId(),
-            post.getAuthor().getId().toString(),
-            post.getTitle(),
-            post.getBody(),
-            post.getStatus().name(),
-            post.getCreatedAt(),
-            post.getUpdatedAt()
-        );
-    }
 }

@@ -35,14 +35,19 @@ public class GroupService {
         });
         UserEntity owner = userRepository.findById(ownerId)
             .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "User not found"));
-        GroupEntity group = new GroupEntity();
-        group.setSlug(request.getSlug());
-        group.setName(request.getName());
-        group.setOwner(owner);
+        GroupEntity group = GroupEntity.builder()
+            .slug(request.getSlug())
+            .name(request.getName())
+            .owner(owner)
+            .build();
         group = groupRepository.save(group);
 
-        GroupMember member = new GroupMember(group, owner);
-        member.setRole(GroupMemberRole.OWNER);
+        GroupMember member = GroupMember.builder()
+            .id(new GroupMemberId(group.getId(), owner.getId()))
+            .group(group)
+            .user(owner)
+            .role(GroupMemberRole.OWNER)
+            .build();
         groupMemberRepository.save(member);
         return group;
     }
@@ -65,7 +70,11 @@ public class GroupService {
         GroupMember member = groupMemberRepository.findById(new GroupMemberId(group.getId(), user.getId()))
             .orElse(null);
         if (member == null) {
-            groupMemberRepository.save(new GroupMember(group, user));
+            groupMemberRepository.save(GroupMember.builder()
+                .id(new GroupMemberId(group.getId(), user.getId()))
+                .group(group)
+                .user(user)
+                .build());
             return;
         }
         member.setState(GroupMemberState.ACTIVE);

@@ -4,6 +4,7 @@ import com.m1.communityhub.domain.GroupEntity;
 import com.m1.communityhub.dto.GroupDtos;
 import com.m1.communityhub.config.security.pro.SecurityUtils;
 import com.m1.communityhub.config.security.pro.UserContext;
+import com.m1.communityhub.mapper.GroupMapper;
 import com.m1.communityhub.service.GroupService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -23,22 +24,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class GroupController {
     private final GroupService groupService;
+    private final GroupMapper groupMapper;
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GroupDtos.GroupResponse createGroup(@Valid @RequestBody GroupDtos.GroupCreateRequest request) {
         UserContext user = requireUser();
         GroupEntity group = groupService.createGroup(user, request);
-        return toResponse(group);
+        return groupMapper.toResponse(group);
     }
 
     @GetMapping
     public List<GroupDtos.GroupResponse> listGroups() {
-        return groupService.listGroups().stream().map(this::toResponse).toList();
+        return groupService.listGroups().stream().map(groupMapper::toResponse).toList();
     }
 
     @GetMapping("/{groupId}")
     public GroupDtos.GroupResponse getGroup(@PathVariable Long groupId) {
-        return toResponse(groupService.getGroup(groupId));
+        return groupMapper.toResponse(groupService.getGroup(groupId));
     }
 
     @PostMapping("/{groupId}/join")
@@ -63,13 +65,4 @@ public class GroupController {
         return user;
     }
 
-    private GroupDtos.GroupResponse toResponse(GroupEntity group) {
-        return new GroupDtos.GroupResponse(
-            group.getId(),
-            group.getSlug(),
-            group.getName(),
-            group.getOwner() == null ? null : group.getOwner().getId().toString(),
-            group.getCreatedAt()
-        );
-    }
 }
